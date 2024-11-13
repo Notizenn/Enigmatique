@@ -10,26 +10,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class WebSecurityConfig {
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({ "deprecation", "removal" })
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests(authorize -> authorize
-                .requestMatchers("/login", "/css/**", "/js/**", "/h2-console/**").permitAll() // Autoriser l'accès à H2
-                .anyRequest().authenticated() // Protéger toutes les autres pages
-            )
-            .formLogin(form -> form
-                .loginPage("/login") // Spécifie votre page de login personnalisée
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .permitAll()
-            )
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**") // Désactiver CSRF pour la console H2
-            )
+            .authorizeRequests()
+            .anyRequest().permitAll() // Autorise toutes les requêtes sans authentification
+            .and()
+            .csrf().disable() // Désactive la protection CSRF pour faciliter les tests avec Postman
             .headers(headers -> headers
-                .frameOptions().disable() // Permettre l'affichage de la console H2 dans un iframe
+                .frameOptions().disable() // Permet l'accès à la console H2 (si nécessaire)
             );
 
         return http.build();

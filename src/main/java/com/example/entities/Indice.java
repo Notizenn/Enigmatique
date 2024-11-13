@@ -1,12 +1,14 @@
 package com.example.entities;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 public class Indice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;

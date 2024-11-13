@@ -1,13 +1,16 @@
 package com.example.entities;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.List;
 
 @Entity
+@Data
 public class Enigme {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     
     @Column(nullable = false)
     private String titre;

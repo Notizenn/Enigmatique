@@ -774,3 +774,6 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: /home/cytech/Eni
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 59 more
+2024-11-13 16:50:21.261334+01:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ENIGMES" not found; SQL statement:
+SELECT * FROM enigmes [42102-224]
