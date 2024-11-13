@@ -1,4 +1,10 @@
 com/example/ProjetJeeApplication.class
-com/example/entities/User.class
+com/example/entities/Enigme.class
+com/example/entities/Resolution.class
 com/example/repository/UserRepository.class
 com/example/controllers/HomeController.class
+com/example/entities/Categorie.class
+com/example/controllers/LoginController.class
+com/example/security/WebSecurityConfig.class
+com/example/entities/Indice.class
+com/example/entities/Utilisateur.class

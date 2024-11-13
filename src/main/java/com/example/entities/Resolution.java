@@ -12,9 +12,7 @@ public class Resolution{
     @Column(nullable = false)
     private LocalDateTime dateTentative = LocalDateTime.now();
     
-    private String reponseFournie;
-    
-    private Boolean reussite;
+
 
     @ManyToOne
     @JoinColumn(name = "utilisateur_id", nullable = false)
