@@ -21,6 +21,7 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    @SuppressWarnings({ "deprecation", "removal" })
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -32,12 +33,12 @@ public class SecurityConfig {
                 .frameOptions().disable()
             .and()
             .formLogin()
-                .loginPage("/login")  // Page de login personnalisée
-                .loginProcessingUrl("/perform_login")  // URL pour traiter la connexion
-                .usernameParameter("email")  // Paramètre pour le nom d'utilisateur
-                .passwordParameter("motDePasse")  // Paramètre pour le mot de passe
-                .defaultSuccessUrl("/home", true)  // Redirection après succès
-                .failureUrl("/login?error=true")  // Redirection en cas d'échec
+                .loginPage("/login") 
+                .loginProcessingUrl("/perform_login")  
+                .usernameParameter("email")
+                .passwordParameter("motDePasse")  
+                .defaultSuccessUrl("/home", true)  
+                .failureUrl("/login?error=true")  
 
             .and()
             .logout()
