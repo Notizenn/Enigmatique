@@ -1,23 +1,32 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr">
 <head>
-    <title>Login</title>
-    <link rel="stylesheet" href="/css/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
 </head>
 <body>
-    <h2>Login</h2>
-    <form action="/login" method="post">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <button type="submit">Login</button>
-        </div>
+    <h2>Se connecter</h2>
+    
+    <!-- Formulaire de connexion -->
+    <form action="/perform_login" method="POST">
+        <label for="email">Email</label>
+        <input id="email" name="email" placeholder="Votre email" required />
+        
+        <label for="motDePasse">Mot de passe</label>
+        <input type="password" id="motDePasse" name="motDePasse" placeholder="Votre mot de passe" required />
+        
+        <button type="submit">Se connecter</button>
     </form>
+
+    <!-- Affichage de l'erreur en cas de mauvaise connexion -->
+    <div th:if="${param.error}">
+        <p style="color: red;">Identifiants incorrects. Essayez à nouveau.</p>
+    </div>
+
+    <!-- Optionnel : message de déconnexion -->
+    <div th:if="${param.logout}">
+        <p style="color: green;">Vous êtes bien déconnecté.</p>
+    </div>
 </body>
 </html>

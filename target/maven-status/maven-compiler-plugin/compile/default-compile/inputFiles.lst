@@ -3,10 +3,12 @@
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/entities/Resolution.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/controllers/HomeController.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/repository/CategorieRepository.java
-/home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/security/WebSecurityConfig.java
+/home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/security/SecurityConfig.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/repository/UtilisateurRepository.java
+/home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/service/CustomUserDetails.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/entities/Utilisateur.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/controllers/LoginController.java
+/home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/service/CustomUserDetailService.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/entities/Indice.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/controllers/UtilisateurController.java
 /home/cytech/Enigmathique/test/Enigmathique/src/main/java/com/example/entities/Categorie.java

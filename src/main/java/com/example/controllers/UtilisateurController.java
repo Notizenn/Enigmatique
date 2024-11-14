@@ -5,6 +5,7 @@ import com.example.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,15 @@ public class UtilisateurController {
     private UtilisateurRepository utilisateurRepository;
 
  
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;  // Injecter le PasswordEncoder
+
     @PostMapping
     public ResponseEntity<Utilisateur> creerUtilisateur(@RequestBody Utilisateur utilisateur) {
+        // Encoder le mot de passe avant de l'enregistrer
+        utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
+        
         Utilisateur nouvelUtilisateur = utilisateurRepository.save(utilisateur);
         return new ResponseEntity<>(nouvelUtilisateur, HttpStatus.CREATED);
     }
