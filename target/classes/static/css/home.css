@@ -23,6 +23,20 @@ body {
     background-color: var(--bg-color);
     padding: 2rem;
 }
+
+.navbar .btn {
+    color: var(--text-color);
+    border-color: var(--accent-color);
+    margin-left: 1rem;
+    border-width: 0.1rem;
+}
+
+.navbar .btn-outline-dark:hover {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    
+}
   
 .nav-link {
     color: var(--text-color);
@@ -53,6 +67,7 @@ body {
     color: var(--text-color);
     border-color: var(--text-color);
     margin-left: 0.5rem;
+    border-width: 0.1rem;
 }
   
 .btn-outline-light:hover {
@@ -120,6 +135,7 @@ body {
 .categories-section .btn-outline-dark {
     color: var(--text-color);
     border-color: var(--accent-color);
+    border-width: 0.1rem;
 }
   
 .categories-section .btn-outline-dark:hover {
@@ -161,6 +177,7 @@ body {
 .articles-section .btn-outline-dark {
     color: var(--text-color);
     border-color: var(--accent-color);
+    border-width: 0.1rem;
 }
 
 .articles-section .btn-outline-dark:hover {

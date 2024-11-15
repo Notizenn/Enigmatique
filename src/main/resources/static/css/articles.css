@@ -49,6 +49,7 @@ body {
     margin-top: 1rem;
     display: inline-block;
     text-align: center;
+    border-width: 0.1rem;
 }
 
 .article-section .btn-outline-dark:hover {
