@@ -10,4 +10,24 @@ public class HomeController {
     public String home() {
         return "home";
     }
+
+    @GetMapping("/admin")
+    public String showAdminPage() {
+        return "admin"; 
+    }
+
+    @GetMapping("/article1")
+    public String showArticle1Page() {
+        return "article1"; 
+    }
+
+    @GetMapping("/article2")
+    public String showArticle2Page() {
+        return "article2"; 
+    }
+
+    @GetMapping("/article3")
+    public String showArticle3Page() {
+        return "article3"; 
+    }
 }

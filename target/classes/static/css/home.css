@@ -3,6 +3,12 @@
     --bg-color: #EFE1D1;
     --text-color: #111e16;
     --accent-color: #A57B5B;
+    --navbar-text-color: #FFFFFF;
+}
+
+.py-7 {
+    padding-top: 9rem !important;
+    padding-bottom: 9rem !important;
 }
   
 /* Style global */
@@ -95,6 +101,7 @@ body {
 }
 
 /* Section des catégories */
+
 .categories-section .card {
     background-color: white;
     border: none;

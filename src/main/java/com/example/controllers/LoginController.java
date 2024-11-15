@@ -10,4 +10,5 @@ public class LoginController {
     public String showLoginPage() {
         return "login"; // Retourne le fichier login.html
     }
+
 }
