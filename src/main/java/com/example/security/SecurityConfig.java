@@ -23,29 +23,29 @@ public class SecurityConfig {
 
     @SuppressWarnings({ "deprecation", "removal" })
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests(requests -> requests
-                        .anyRequest().permitAll())
-                .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers
-                        .frameOptions().disable())
-                .formLogin(login -> login
-                        .loginPage("/login")
-                        .loginProcessingUrl("/perform_login")
-                        .usernameParameter("email")
-                        .passwordParameter("motDePasse")
-                        .defaultSuccessUrl("/home", true)
-                        .failureUrl("/login?error=true"))
-                .logout(logout -> logout
-                        .logoutUrl("/perform_logout")
-                        .logoutSuccessUrl("/login?logout=true")
-                        .deleteCookies("JSESSIONID"));
-            
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+            .authorizeRequests(requests -> requests
+                    .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Protéger les routes /admin
+                    .requestMatchers("/login", "/home", "/api/**").permitAll() // Permettre l'accès à certaines routes publiques
+                    .anyRequest().authenticated()) // Exiger l'authentification pour toute autre route
+            .csrf(csrf -> csrf.disable())
+            .headers(headers -> headers
+                    .frameOptions().disable())
+            .formLogin(login -> login
+                    .loginPage("/login")
+                    .loginProcessingUrl("/perform_login")
+                    .usernameParameter("email")
+                    .passwordParameter("motDePasse")
+                    .defaultSuccessUrl("/home", true)
+                    .failureUrl("/login?error=true"))
+            .logout(logout -> logout
+                    .logoutUrl("/perform_logout")
+                    .logoutSuccessUrl("/login?logout=true")
+                    .deleteCookies("JSESSIONID"));
 
-        return http.build();
-    }
-
+    return http.build();
+}
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

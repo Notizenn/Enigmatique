@@ -2,33 +2,35 @@ package com.example.service;
 
 import com.example.entities.Utilisateur;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-
+import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
-    private Utilisateur utilisateur;
-    
+    private final Utilisateur utilisateur;
+
     public CustomUserDetails(Utilisateur utilisateur) {
         this.utilisateur = utilisateur;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList("USER");  
+        // Retourner le rôle approprié en fonction de l'attribut admin
+        String role = utilisateur.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
 
     @Override
     public String getPassword() {
-        return utilisateur.getMotDePasse();  
+        return utilisateur.getMotDePasse();
     }
 
     @Override
     public String getUsername() {
-        return utilisateur.getEmail();  
+        return utilisateur.getEmail();
     }
 
     @Override
