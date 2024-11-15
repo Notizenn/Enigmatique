@@ -17,20 +17,20 @@ public class CategorieController {
     @Autowired
     private CategorieRepository categorieRepository;
 
-    // POST - Créer une nouvelle catégorie
+   
     @PostMapping
     public ResponseEntity<Categorie> creerCategorie(@RequestBody Categorie categorie) {
         Categorie nouvelleCategorie = categorieRepository.save(categorie);
         return new ResponseEntity<>(nouvelleCategorie, HttpStatus.CREATED);
     }
 
-    // GET - Obtenir toutes les catégories
+   
     @GetMapping
     public List<Categorie> obtenirToutesLesCategories() {
         return categorieRepository.findAll();
     }
 
-    // GET - Obtenir une catégorie par ID
+   
     @GetMapping("/{id}")
     public ResponseEntity<Categorie> obtenirCategorieParId(@PathVariable Long id) {
         Optional<Categorie> categorie = categorieRepository.findById(id);
@@ -38,7 +38,7 @@ public class CategorieController {
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // PUT - Mettre à jour une catégorie existante
+    
     @PutMapping("/{id}")
     public ResponseEntity<Categorie> mettreAJourCategorie(@PathVariable Long id, @RequestBody Categorie detailsCategorie) {
         Optional<Categorie> categorieExistante = categorieRepository.findById(id);
@@ -53,7 +53,6 @@ public class CategorieController {
         }
     }
 
-    // DELETE - Supprimer une catégorie par ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> supprimerCategorie(@PathVariable Long id) {
         Optional<Categorie> categorie = categorieRepository.findById(id);

@@ -12,24 +12,23 @@ public class CustomUserDetails implements UserDetails {
 
     private Utilisateur utilisateur;
     
-    // Constructeur
     public CustomUserDetails(Utilisateur utilisateur) {
         this.utilisateur = utilisateur;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList("USER");  // Ajouter les rôles si nécessaire
+        return AuthorityUtils.createAuthorityList("USER");  
     }
 
     @Override
     public String getPassword() {
-        return utilisateur.getMotDePasse();  // Retourner le mot de passe haché
+        return utilisateur.getMotDePasse();  
     }
 
     @Override
     public String getUsername() {
-        return utilisateur.getEmail();  // Retourner l'email comme identifiant
+        return utilisateur.getEmail();  
     }
 
     @Override
