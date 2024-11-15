@@ -25,26 +25,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
-                .anyRequest().permitAll()
-            .and()
-            .csrf().disable()
-            .headers()
-                .frameOptions().disable()
-            .and()
-            .formLogin()
-                .loginPage("/login") 
-                .loginProcessingUrl("/perform_login")  
-                .usernameParameter("email")
-                .passwordParameter("motDePasse")  
-                .defaultSuccessUrl("/home", true)  
-                .failureUrl("/login?error=true")  
-
-            .and()
-            .logout()
-                .logoutUrl("/perform_logout")
-                .logoutSuccessUrl("/login?logout=true")
-                .deleteCookies("JSESSIONID");
+                .authorizeRequests(requests -> requests
+                        .anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions().disable())
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .loginProcessingUrl("/perform_login")
+                        .usernameParameter("email")
+                        .passwordParameter("motDePasse")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error=true"))
+                .logout(logout -> logout
+                        .logoutUrl("/perform_logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .deleteCookies("JSESSIONID"));
             
 
         return http.build();

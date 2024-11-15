@@ -24,5 +24,8 @@ public class Utilisateur {
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Resolution> resolutions;
 
+    @Column
+    private boolean admin;
+
 
 }
