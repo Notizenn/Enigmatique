@@ -18,10 +18,10 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Retourner le rôle approprié en fonction de l'attribut admin
         String role = utilisateur.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
         return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
+
 
     @Override
     public String getPassword() {

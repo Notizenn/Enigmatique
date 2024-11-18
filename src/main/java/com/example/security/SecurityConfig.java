@@ -19,30 +19,26 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    @SuppressWarnings({ "deprecation", "removal" })
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests(requests -> requests
-                .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Accès réservé aux administrateurs
-                .requestMatchers("/login", "/register", "/home").permitAll() // Accès public aux pages spécifiques
-                .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll() // Accès public aux ressources statiques
-                .requestMatchers("/api/utilisateurs/**").permitAll() // Accès public à l'API utilisateur
-                .requestMatchers("/h2-console/**", "/").permitAll() // Accès public à la console H2
-                .anyRequest().authenticated()) // Toute autre page nécessite une connexion
-            .csrf(csrf -> csrf.disable()) // Désactiver CSRF (nécessaire pour la console H2)
-            .headers(headers -> headers
-                .frameOptions().disable()) // Désactiver X-Frame-Options pour afficher la console H2 dans des frames
+            .authorizeHttpRequests(requests -> requests
+                .requestMatchers("/admin/**").hasRole("ADMIN") // Accès réservé aux administrateurs
+                .requestMatchers("/login", "/register", "/home", "/").permitAll() // Pages publiques
+                .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll() // Ressources statiques accessibles à tous
+                .anyRequest().authenticated()) // Toute autre page nécessite une authentification
+            .csrf(csrf -> csrf.disable()) // Désactiver CSRF pour simplifier les tests
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // Autoriser la console H2
             .formLogin(login -> login
-                .loginPage("/login")
+                .loginPage("/login") // Page de connexion personnalisée
                 .loginProcessingUrl("/perform_login")
                 .usernameParameter("email")
                 .passwordParameter("motDePasse")
-                .defaultSuccessUrl("/home", true)
-                .failureUrl("/login?error=true"))
+                .defaultSuccessUrl("/home", true) // Redirection après connexion
+                .failureUrl("/login?error=true")) // En cas d'erreur de connexion
             .logout(logout -> logout
                 .logoutUrl("/perform_logout")
-                .logoutSuccessUrl("/login?logout=true")
+                .logoutSuccessUrl("/login?logout=true") // Redirection après déconnexion
                 .deleteCookies("JSESSIONID"));
 
         return http.build();
