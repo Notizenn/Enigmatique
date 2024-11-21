@@ -1,4 +1,4 @@
-// Enigmas array with "faite" property
+// Base de données à changer
 const enigmas = [
     {
         id: 1,
@@ -12,7 +12,7 @@ const enigmas = [
                 nom: "Maths"
             }
         ],
-        faite: false
+        faite: "non"
     },
     {
         id: 2,
@@ -26,7 +26,7 @@ const enigmas = [
                 nom: "Logique"
             }
         ],
-        faite: false
+        faite: "non"
     },
     {
         id: 3,
@@ -40,7 +40,7 @@ const enigmas = [
                 nom: "Maths"
             }
         ],
-        faite: false
+        faite: "non"
     }
 ];
 
@@ -50,9 +50,16 @@ const enigmas = [
 
 let currentEnigma = null;
 
-// Populate the enigma list dynamically
 const puzzleList = document.getElementById('puzzleList');
 enigmas.forEach(enigma => {
+    const icon = enigma.faite === "oui"
+        ? "img/checkmark.png"       
+        : enigma.faite === "passé"
+            ? "img/cross.png"       
+            : "img/secured-lock.png"; 
+
+    const size = enigma.faite === "oui" ? "30" : "25";
+
     const listItem = document.createElement('div');
     listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
     listItem.onclick = () => handleEnigmaClick(enigma.id);
@@ -60,45 +67,71 @@ enigmas.forEach(enigma => {
         <span>${enigma.titre}</span>
         <span class="badge">
             <i>
-                <img src="${enigma.faite ? 'img/checkmark.png' : 'img/secured-lock.png'}" 
-                     width="${enigma.faite ? '30' : '25'}" 
-                     alt="${enigma.faite ? 'Validée' : 'Verrouillée'}">
+                <img src="${icon}" width="${size}" alt="${enigma.faite}">
             </i>
         </span>
     `;
     puzzleList.appendChild(listItem);
 });
 
+
+// Détermine si toutes les énigmes sont terminées ou passées automatiquement à la prochaine énigme non résolue.
 function playNextEnigma() {
-    const nextEnigma = enigmas.find(enigma => !enigma.faite);
-    if (nextEnigma) {
-        showEnigma(nextEnigma);
-    } else {
+    const allCompleted = enigmas.every(enigma => enigma.faite === "oui");
+
+    if (allCompleted) {
         alert("Félicitations, vous avez terminé toutes les énigmes !");
+    } else {
+        const nextEnigma = enigmas.find(enigma => enigma.faite === "non");
+        if (nextEnigma) {
+            showEnigma(nextEnigma);
+        } else {
+            alert("Il ne reste que des énigmes passées !");
+        }
     }
 }
 
+
+// Gère le clic sur une énigme : affiche l'énigme si elle est débloquée, sinon affiche une popup avec un message de restriction.
 function handleEnigmaClick(enigmaId) {
     const enigma = enigmas.find(e => e.id === enigmaId);
-    if (enigma.faite) {
+    if (enigma.faite === "oui") {
         showEnigma(enigma);
     } else {
-        alert("Vous devez terminer les énigmes précédentes avant de débloquer celle-ci.");
+        const modalBody = document.getElementById("messageModalBody");
+        modalBody.textContent = "Vous devez terminer les énigmes précédentes avant de débloquer celle-ci.";
+
+        const messageModal = new bootstrap.Modal(document.getElementById("messageModal"));
+        messageModal.show();
     }
 }
 
+// Affiche une popup contenant les détails de l'énigme sélectionnée, tout en évitant la création de fonds noirs (backdrop) multiples.
 function showEnigma(enigma) {
     currentEnigma = enigma;
     document.getElementById("enigmaModalLabel").textContent = enigma.titre;
     document.getElementById("enigmaQuestion").textContent = enigma.question;
     document.getElementById("enigmaHint").textContent = enigma.indice;
     document.getElementById("enigmaHint").style.display = "none";
-    document.getElementById("enigmaAnswer").value = ""; // Clear input field
-    document.getElementById("feedbackMessage").textContent = ""; // Clear feedback
-    const enigmaModal = new bootstrap.Modal(document.getElementById("enigmaModal"));
+    document.getElementById("enigmaAnswer").value = ""; 
+    document.getElementById("feedbackMessage").textContent = ""; 
+
+    const enigmaModal = new bootstrap.Modal(document.getElementById("enigmaModal"), {
+        backdrop: true, 
+        keyboard: true  
+    });
     enigmaModal.show();
+
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    if (backdrops.length > 1) {
+        for (let i = 0; i < backdrops.length - 1; i++) {
+            backdrops[i].remove(); 
+        }
+    }
 }
 
+
+// Vérifie la réponse de l'énigme en cours, met à jour son état, et passe à l'énigme suivante si la réponse est correcte.
 function checkAnswer() {
     const answer = document.getElementById("enigmaAnswer").value.trim();
     const feedbackMessage = document.getElementById("feedbackMessage");
@@ -106,11 +139,13 @@ function checkAnswer() {
     if (answer === currentEnigma.reponse) {
         feedbackMessage.textContent = "Réponse correcte !";
         feedbackMessage.style.color = "green";
+        currentEnigma.faite = "oui";
+
+
         setTimeout(() => {
             feedbackMessage.textContent = "";
-            currentEnigma.faite = true;
-            updatePuzzleList();
-            playNextEnigma();
+            updatePuzzleList(); 
+            playNextEnigma(); 
         }, 1000);
     } else {
         feedbackMessage.textContent = "Réponse incorrecte.";
@@ -118,10 +153,34 @@ function checkAnswer() {
     }
 }
 
+// Marque l'énigme actuelle comme "passée", met à jour la liste et passe automatiquement à l'énigme suivante.
+function skipEnigma() {
+    const feedbackMessage = document.getElementById("feedbackMessage");
+    feedbackMessage.textContent = "Vous avez passé cette énigme.";
+    feedbackMessage.style.color = "orange";
+    currentEnigma.faite = "passé";
 
+
+    setTimeout(() => {
+        feedbackMessage.textContent = ""; 
+        updatePuzzleList(); 
+        playNextEnigma(); 
+    }, 1000);
+}
+
+
+// Met à jour dynamiquement la liste des énigmes en fonction de leur état ("non", "oui", ou "passé") avec les icônes correspondantes.
 function updatePuzzleList() {
-    puzzleList.innerHTML = ""; // Efface la liste existante
+    puzzleList.innerHTML = ""; 
     enigmas.forEach(enigma => {
+        const icon = enigma.faite === "oui" 
+            ? "img/checkmark.png" 
+            : enigma.faite === "passé" 
+                ? "img/croix.png" 
+                : "img/secured-lock.png";
+
+        const size = enigma.faite === "oui" ? "30" : "25";
+
         const listItem = document.createElement('div');
         listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
         listItem.onclick = () => handleEnigmaClick(enigma.id);
@@ -129,9 +188,7 @@ function updatePuzzleList() {
             <span>${enigma.titre}</span>
             <span class="badge">
                 <i>
-                    <img src="${enigma.faite ? 'img/checkmark.png' : 'img/secured-lock.png'}" 
-                         width="${enigma.faite ? '30' : '25'}" 
-                         alt="${enigma.faite ? 'Validée' : 'Verrouillée'}">
+                    <img src="${icon}" width="${size}" alt="${enigma.faite}">
                 </i>
             </span>
         `;
@@ -140,15 +197,4 @@ function updatePuzzleList() {
 }
 
 
-document.getElementById('enigmaModal').addEventListener('hidden.bs.modal', () => {
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) {
-        backdrop.parentNode.removeChild(backdrop);
-    }
-});
 
-
-function showHint() {
-    const hintElement = document.getElementById("enigmaHint");
-    hintElement.style.display = "inline"; // Affiche l'indice
-}
