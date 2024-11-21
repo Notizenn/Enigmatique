@@ -46,13 +46,9 @@
                             <td th:text="${utilisateur.email}"></td>
                             <td th:text="${utilisateur.admin ? 'Oui' : 'Non'}"></td>
                             <td>
-                                <!-- Bouton Modifier -->
                                 <button 
                                     class="btn btn-warning btn-sm btn-edit" 
-                                    data-id="${utilisateur.id}" 
-                                    data-nom="${utilisateur.nom}" 
-                                    data-email="${utilisateur.email}" 
-                                    data-admin="${utilisateur.admin}">
+                                    th:attr="data-id=${utilisateur.id}, data-nom=${utilisateur.nom}, data-email=${utilisateur.email}, data-admin=${utilisateur.admin}">
                                     Modifier
                                 </button>
 

@@ -27,7 +27,9 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/register", "/home", "/").permitAll() // Pages publiques
                 .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll() // Ressources statiques accessibles à tous
                 .anyRequest().authenticated()) // Toute autre page nécessite une authentification
-            .csrf(csrf -> csrf.disable()) // Désactiver CSRF pour simplifier les tests
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/admin/utilisateurs/delete/**") // Désactiver CSRF pour DELETE
+                .disable()) // Désactiver CSRF globalement si nécessaire
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // Autoriser la console H2
             .formLogin(login -> login
                 .loginPage("/login") // Page de connexion personnalisée

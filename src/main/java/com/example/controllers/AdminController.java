@@ -52,11 +52,16 @@ public class AdminController {
     }
 
 
-    // Supprimer un utilisateur
     @DeleteMapping("/delete/{id}")
     @ResponseBody
     public ResponseEntity<Void> deleteUtilisateurAjax(@PathVariable Long id) {
-        utilisateurRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        Optional<Utilisateur> utilisateur = utilisateurRepository.findById(id);
+        if (utilisateur.isPresent()) {
+            utilisateurRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
 }

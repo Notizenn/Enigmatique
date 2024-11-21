@@ -43,22 +43,25 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Erreur :", error));
     });
 
-    // Supprimer un utilisateur
-    const deleteButtons = document.querySelectorAll(".btn-delete");
-    deleteButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            const userId = this.getAttribute("data-id");
-            if (confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
-                fetch(`/admin/utilisateurs/delete/${userId}`, { method: "DELETE" })
-                    .then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        } else {
-                            alert("Erreur lors de la suppression.");
-                        }
-                    })
-                    .catch(error => console.error("Erreur :", error));
-            }
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".btn-delete");
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const userId = this.getAttribute("data-id");
+                if (confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
+                    fetch(`/admin/utilisateurs/delete/${userId}`, { method: "DELETE" })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Utilisateur supprimé avec succès !");
+                                location.reload();
+                            } else {
+                                alert("Erreur : Impossible de supprimer l'utilisateur.");
+                            }
+                        })
+                        .catch(error => console.error("Erreur :", error));
+                }
+            });
         });
     });
+    
 });
