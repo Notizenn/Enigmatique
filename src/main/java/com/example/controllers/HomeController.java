@@ -30,4 +30,24 @@ public class HomeController {
     public String showArticle3Page() {
         return "article3"; 
     }
+
+    @GetMapping("/game")
+    public String showGamePage() {
+        return "game"; 
+    }
+
+    @GetMapping("/logique")
+    public String showLogiquePage() {
+        return "logique"; 
+    }
+
+    @GetMapping("/maths")
+    public String showMathsPage() {
+        return "maths"; 
+    }
+
+    @GetMapping("/crypto")
+    public String showCryptoPage() {
+        return "crypto"; 
+    }
 }
