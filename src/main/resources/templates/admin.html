@@ -71,6 +71,14 @@
             <!-- Résolutions -->
             <div class="tab-pane fade" id="resolutions" role="tabpanel">
                 <h2>Gestion des Résolutions</h2>
+                <form th:action="@{/admin/resolution/add}" method="post" class="mb-3">
+                    <textarea name="resolution" placeholder="Réponse" class="form-control mb-2" required></textarea>
+                    <input type="number" name="nbpts" placeholder="points" class="form-control mb-2" required>
+                    <select name="enigmeId" class="form-control mb-2" required>
+                        <option th:each="enigme : ${enigmes}" th:value="${enigme.id}" th:text="${enigme.titre}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Ajouter Resolution</button>
+                </form>
                 <table class="table table-striped">
                     <thead>
                         <tr>
