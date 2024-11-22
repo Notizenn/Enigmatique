@@ -1,3 +1,4 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
 package com.example.controllers;
 
 import org.springframework.stereotype.Controller;
@@ -5,11 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
+   public HomeController() {
+   }
 
-    @GetMapping("/home")
-    public String home() {
-        return "home";
-    }
+   @GetMapping({"/home"})
+   public String home() {
+      return "home";
+   }
 
     @GetMapping("/admin")
     public String showAdminPage() {
