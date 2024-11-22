@@ -23,28 +23,32 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers("/admin/**").hasRole("ADMIN") // Accès réservé aux administrateurs
-                .requestMatchers("/login", "/register", "/home", "/").permitAll() // Pages publiques
-                .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll() // Ressources statiques accessibles à tous
-                .anyRequest().authenticated()) // Toute autre page nécessite une authentification
+                // Permettre l'accès à l'ajout d'énigmes pour les utilisateurs authentifiés
+                .requestMatchers("/admin/enigmes/add").authenticated() 
+                // Restreindre les autres routes /admin aux administrateurs
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/login", "/register", "/home", "/").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll()
+                .anyRequest().authenticated())
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/admin/utilisateurs/delete/**") // Désactiver CSRF pour DELETE
-                .disable()) // Désactiver CSRF globalement si nécessaire
-            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // Autoriser la console H2
+                .ignoringRequestMatchers("/admin/enigmes/add") // Désactiver CSRF pour cette route si nécessaire
+                .disable())
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
             .formLogin(login -> login
-                .loginPage("/login") // Page de connexion personnalisée
+                .loginPage("/login")
                 .loginProcessingUrl("/perform_login")
                 .usernameParameter("email")
                 .passwordParameter("motDePasse")
-                .defaultSuccessUrl("/home", true) // Redirection après connexion
-                .failureUrl("/login?error=true")) // En cas d'erreur de connexion
+                .defaultSuccessUrl("/home", true)
+                .failureUrl("/login?error=true"))
             .logout(logout -> logout
                 .logoutUrl("/perform_logout")
-                .logoutSuccessUrl("/login?logout=true") // Redirection après déconnexion
+                .logoutSuccessUrl("/login?logout=true")
                 .deleteCookies("JSESSIONID"));
 
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

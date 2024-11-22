@@ -1,45 +1,50 @@
 package com.example.controllers;
 
-import com.example.entities.Utilisateur;
-import com.example.repository.UtilisateurRepository;
+import com.example.entities.*;
+import com.example.repository.*;
+
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 
 @Controller
-@RequestMapping("/admin/utilisateurs")
+@RequestMapping("/admin")
 public class AdminController {
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-    // Afficher la liste des utilisateurs
-    @GetMapping
+    @Autowired
+    private ResolutionRepository resolutionRepository;
+
+    @Autowired
+    private IndiceRepository indiceRepository;
+
+    @Autowired
+    private EnigmeRepository enigmeRepository;
+
+    @Autowired
+    private CategorieRepository categorieRepository;
+
+    // *** Gestion des Utilisateurs ***
+    @GetMapping("/utilisateurs")
     public String listUtilisateurs(Model model) {
         model.addAttribute("utilisateurs", utilisateurRepository.findAll());
-        return "admin"; // Page admin.html
+        return "admin";
     }
 
-    // Ajouter un utilisateur
-    @PostMapping("/add")
+    @PostMapping("/utilisateurs/add")
     public String addUtilisateur(@ModelAttribute Utilisateur utilisateur) {
         utilisateurRepository.save(utilisateur);
         return "redirect:/admin/utilisateurs";
     }
 
-    // Obtenir les détails d'un utilisateur pour modification
-    @GetMapping("/edit/{id}")
-    @ResponseBody
-    public ResponseEntity<Utilisateur> getUtilisateurById(@PathVariable Long id) {
-        Optional<Utilisateur> utilisateur = utilisateurRepository.findById(id);
-        return utilisateur.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/update/{id}")
+    @PutMapping("/utilisateurs/update/{id}")
     @ResponseBody
     public ResponseEntity<Utilisateur> updateUtilisateur(@PathVariable Long id, @RequestBody Utilisateur utilisateurDetails) {
         return utilisateurRepository.findById(id).map(utilisateur -> {
@@ -51,17 +56,112 @@ public class AdminController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/utilisateurs/delete/{id}")
     @ResponseBody
-    public ResponseEntity<Void> deleteUtilisateurAjax(@PathVariable Long id) {
-        Optional<Utilisateur> utilisateur = utilisateurRepository.findById(id);
-        if (utilisateur.isPresent()) {
+    public ResponseEntity<Void> deleteUtilisateur(@PathVariable Long id) {
+        if (utilisateurRepository.existsById(id)) {
             utilisateurRepository.deleteById(id);
             return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.notFound().build();
     }
 
+    // *** Gestion des Résolutions ***
+    @GetMapping("/resolutions")
+    public String listResolutions(Model model) {
+        model.addAttribute("resolutions", resolutionRepository.findAll());
+        return "admin";
+    }
+
+    @DeleteMapping("/resolutions/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteResolution(@PathVariable Long id) {
+        if (resolutionRepository.existsById(id)) {
+            resolutionRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // *** Gestion des Indices ***
+    @GetMapping("/indices")
+    public String listIndices(Model model) {
+        model.addAttribute("indices", indiceRepository.findAll());
+        model.addAttribute("enigmes", enigmeRepository.findAll()); // Pour associer un indice à une énigme
+        return "admin";
+    }
+
+    @PostMapping("/indices/add")
+    public String addIndice(@ModelAttribute Indice indice) {
+        indiceRepository.save(indice);
+        return "redirect:/admin/indices";
+    }
+
+    @DeleteMapping("/indices/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteIndice(@PathVariable Long id) {
+        if (indiceRepository.existsById(id)) {
+            indiceRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // *** Gestion des Énigmes ***
+    @GetMapping("/enigmes")
+    public String listEnigmes(Model model) {
+        model.addAttribute("enigmes", enigmeRepository.findAll());
+        return "admin";
+    }
+
+    @PostMapping("/enigmes/add")
+    public String addEnigme(@ModelAttribute Enigme enigme) {
+        // Initialiser les listes vides si elles ne sont pas fournies
+        if (enigme.getIndices() == null) {
+            enigme.setIndices(new ArrayList<>());
+        }
+        if (enigme.getResolutions() == null) {
+            enigme.setResolutions(new ArrayList<>());
+        }
+        if (enigme.getCategories() == null) {
+            enigme.setCategories(new ArrayList<>());
+        }
+
+        enigmeRepository.save(enigme);
+        return "redirect:/admin/enigmes";
+    }
+
+
+    @DeleteMapping("/enigmes/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteEnigme(@PathVariable Long id) {
+        if (enigmeRepository.existsById(id)) {
+            enigmeRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // *** Gestion des Catégories ***
+    @GetMapping("/categories")
+    public String listCategories(Model model) {
+        model.addAttribute("categories", categorieRepository.findAll());
+        return "admin";
+    }
+
+    @PostMapping("/categories/add")
+    public String addCategorie(@ModelAttribute Categorie categorie) {
+        categorieRepository.save(categorie);
+        return "redirect:/admin/categories";
+    }
+
+    @DeleteMapping("/categories/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteCategorie(@PathVariable Long id) {
+        if (categorieRepository.existsById(id)) {
+            categorieRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
