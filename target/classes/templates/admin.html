@@ -68,36 +68,57 @@
                 </table>
             </div>
 
-            <!-- Résolutions -->
+            <!-- Statistiques -->
             <div class="tab-pane fade" id="resolutions" role="tabpanel">
-                <h2>Gestion des Résolutions</h2>
-                <form th:action="@{/admin/resolution/add}" method="post" class="mb-3">
-                    <textarea name="resolution" placeholder="Réponse" class="form-control mb-2" required></textarea>
-                    <input type="number" name="nbpts" placeholder="points" class="form-control mb-2" required>
-                    <select name="enigmeId" class="form-control mb-2" required>
-                        <option th:each="enigme : ${enigmes}" th:value="${enigme.id}" th:text="${enigme.titre}"></option>
-                    </select>
-                    <button type="submit" class="btn btn-primary">Ajouter Resolution</button>
-                </form>
+                <h2>Statistiques</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Nombre total d'utilisateurs</h5>
+                                <p class="card-text" th:text="${stats.totalUtilisateurs}">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Nombre total d'énigmes</h5>
+                                <p class="card-text" th:text="${stats.totalEnigmes}">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Nombre total d'indices</h5>
+                                <p class="card-text" th:text="${stats.totalIndices}">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Nombre de résolutions</h5>
+                                <p class="card-text" th:text="${stats.totalResolutions}">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mt-4">Top Performances</h3>
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Utilisateur</th>
-                            <th>Énigme</th>
-                            <th>Date</th>
-                            <th>Actions</th>
+                            <th>Nombre d'énigmes résolues</th>
+                            <th>Points totaux</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="resolution : ${resolutions}">
-                            <td th:text="${resolution.id}"></td>
-                            <td th:text="${resolution.utilisateur.nom}"></td>
-                            <td th:text="${resolution.enigme.titre}"></td>
-                            <td th:text="${resolution.dateTentative}"></td>
-                            <td>
-                                <button class="btn btn-danger btn-sm btn-delete-resolution" th:attr="data-id=${resolution.id}">Supprimer</button>
-                            </td>
+                        <tr th:each="user : ${stats.topPerformers}">
+                            <td th:text="${user.nom}"></td>
+                            <td th:text="${user.nbEnigmesResolues}"></td>
+                            <td th:text="${user.totalPoints}"></td>
                         </tr>
                     </tbody>
                 </table>

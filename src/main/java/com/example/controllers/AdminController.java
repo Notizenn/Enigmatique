@@ -3,14 +3,13 @@ package com.example.controllers;
 import com.example.entities.*;
 import com.example.repository.*;
 
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/admin")
@@ -20,7 +19,7 @@ public class AdminController {
     private UtilisateurRepository utilisateurRepository;
 
     @Autowired
-    private ResolutionRepository resolutionRepository;
+    private StatistiqueRepository statistiqueRepository;
 
     @Autowired
     private IndiceRepository indiceRepository;
@@ -35,7 +34,7 @@ public class AdminController {
     @GetMapping("/utilisateurs")
     public String listUtilisateurs(Model model) {
         model.addAttribute("utilisateurs", utilisateurRepository.findAll());
-        return "admin";
+        return "admin/utilisateurs";
     }
 
     @PostMapping("/utilisateurs/add")
@@ -66,18 +65,18 @@ public class AdminController {
         return ResponseEntity.notFound().build();
     }
 
-    // *** Gestion des Résolutions ***
-    @GetMapping("/resolutions")
-    public String listResolutions(Model model) {
-        model.addAttribute("resolutions", resolutionRepository.findAll());
-        return "admin";
+    // *** Gestion des Statistiques ***
+    @GetMapping("/statistiques")
+    public String listStatistiques(Model model) {
+        model.addAttribute("statistiques", statistiqueRepository.findAll());
+        return "admin/statistiques";
     }
 
-    @DeleteMapping("/resolutions/delete/{id}")
+    @DeleteMapping("/statistiques/delete/{id}")
     @ResponseBody
-    public ResponseEntity<Void> deleteResolution(@PathVariable Long id) {
-        if (resolutionRepository.existsById(id)) {
-            resolutionRepository.deleteById(id);
+    public ResponseEntity<Void> deleteStatistique(@PathVariable Long id) {
+        if (statistiqueRepository.existsById(id)) {
+            statistiqueRepository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
@@ -88,7 +87,7 @@ public class AdminController {
     public String listIndices(Model model) {
         model.addAttribute("indices", indiceRepository.findAll());
         model.addAttribute("enigmes", enigmeRepository.findAll()); // Pour associer un indice à une énigme
-        return "admin";
+        return "admin/indices";
     }
 
     @PostMapping("/indices/add")
@@ -111,7 +110,8 @@ public class AdminController {
     @GetMapping("/enigmes")
     public String listEnigmes(Model model) {
         model.addAttribute("enigmes", enigmeRepository.findAll());
-        return "admin";
+        model.addAttribute("categories", categorieRepository.findAll());
+        return "admin/enigmes";
     }
 
     @PostMapping("/enigmes/add")
@@ -120,9 +120,6 @@ public class AdminController {
         if (enigme.getIndices() == null) {
             enigme.setIndices(new ArrayList<>());
         }
-        if (enigme.getResolutions() == null) {
-            enigme.setResolutions(new ArrayList<>());
-        }
         if (enigme.getCategories() == null) {
             enigme.setCategories(new ArrayList<>());
         }
@@ -130,7 +127,6 @@ public class AdminController {
         enigmeRepository.save(enigme);
         return "redirect:/admin/enigmes";
     }
-
 
     @DeleteMapping("/enigmes/delete/{id}")
     @ResponseBody
@@ -146,7 +142,7 @@ public class AdminController {
     @GetMapping("/categories")
     public String listCategories(Model model) {
         model.addAttribute("categories", categorieRepository.findAll());
-        return "admin";
+        return "admin/categories";
     }
 
     @PostMapping("/categories/add")

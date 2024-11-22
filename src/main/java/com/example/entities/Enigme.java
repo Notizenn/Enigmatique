@@ -27,8 +27,9 @@ public class Enigme {
     @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Indice> indices;
 
-    @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Resolution> resolutions;
+    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Statistique> statistiques;
+
 
     @ManyToMany
     @JoinTable(
@@ -38,5 +39,5 @@ public class Enigme {
     )
     private List<Categorie> categories;
 
-    // Getters and Setters
+    
 }
