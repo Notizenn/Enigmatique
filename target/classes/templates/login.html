@@ -6,27 +6,21 @@
     <title>Connexion</title>
 </head>
 <body>
-    <h2>Se connecter</h2>
-    
-    <!-- Formulaire de connexion -->
+    <h2>Connexion</h2>
     <form action="/perform_login" method="POST">
-        <label for="email">Email</label>
-        <input id="email" name="email" placeholder="Votre email" required />
-        
-        <label for="motDePasse">Mot de passe</label>
-        <input type="password" id="motDePasse" name="motDePasse" placeholder="Votre mot de passe" required />
-        
+        <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Votre email" required>
+        </div>
+        <div>
+            <label for="motDePasse">Mot de passe</label>
+            <input type="password" id="motDePasse" name="motDePasse" placeholder="Votre mot de passe" required>
+        </div>
         <button type="submit">Se connecter</button>
     </form>
 
-    <!-- Affichage de l'erreur en cas de mauvaise connexion -->
-    <div th:if="${param.error}">
-        <p style="color: red;">Identifiants incorrects. Essayez à nouveau.</p>
-    </div>
-
-    <!-- Optionnel : message de déconnexion -->
-    <div th:if="${param.logout}">
-        <p style="color: green;">Vous êtes bien déconnecté.</p>
-    </div>
+    <!-- Affichage des messages -->
+    <div th:if="${error}" style="color: red;">[[${error}]]</div>
+    <div th:if="${message}" style="color: green;">[[${message}]]</div>
 </body>
 </html>
