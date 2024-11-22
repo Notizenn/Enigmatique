@@ -3,6 +3,12 @@
     --bg-color: #EFE1D1;
     --text-color: #111e16;
     --accent-color: #A57B5B;
+    --navbar-text-color: #FFFFFF;
+}
+
+.py-7 {
+    padding-top: 9rem !important;
+    padding-bottom: 9rem !important;
 }
   
 /* Style global */
@@ -15,7 +21,20 @@ body {
 /* Navbar */
 .navbar {
     background-color: var(--bg-color);
-    padding: 2rem;
+}
+
+.navbar .btn {
+    color: var(--text-color);
+    border-color: var(--accent-color);
+    margin-left: 1rem;
+    border-width: 0.1rem;
+}
+
+.navbar .btn-outline-dark:hover {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    
 }
   
 .nav-link {
@@ -47,6 +66,7 @@ body {
     color: var(--text-color);
     border-color: var(--text-color);
     margin-left: 0.5rem;
+    border-width: 0.1rem;
 }
   
 .btn-outline-light:hover {
@@ -95,6 +115,7 @@ body {
 }
 
 /* Section des catégories */
+
 .categories-section .card {
     background-color: white;
     border: none;
@@ -113,6 +134,7 @@ body {
 .categories-section .btn-outline-dark {
     color: var(--text-color);
     border-color: var(--accent-color);
+    border-width: 0.1rem;
 }
   
 .categories-section .btn-outline-dark:hover {
@@ -154,6 +176,7 @@ body {
 .articles-section .btn-outline-dark {
     color: var(--text-color);
     border-color: var(--accent-color);
+    border-width: 0.1rem;
 }
 
 .articles-section .btn-outline-dark:hover {
@@ -210,4 +233,3 @@ blockquote footer {
 .footer a:hover {
     color: var(--accent-color);
 }
-
