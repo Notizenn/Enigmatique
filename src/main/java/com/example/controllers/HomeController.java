@@ -50,4 +50,14 @@ public class HomeController {
     public String showCryptoPage() {
         return "crypto"; 
     }
+
+    @GetMapping("/sous")
+    public String showSousPage() {
+        return "sous"; 
+    }
+
+    @GetMapping("/leaderboard")
+    public String showLeaderboardPage() {
+        return "leaderboard"; 
+    }
 }
