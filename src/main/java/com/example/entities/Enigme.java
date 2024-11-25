@@ -2,9 +2,7 @@ package com.example.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.List;
-
 @Entity
 @Data
 public class Enigme {
@@ -22,17 +20,10 @@ public class Enigme {
     private String reponse;
 
     @Column(nullable = false)
-    private String niveau;
+    private String indice;
 
-    @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Indice> indices;
-
-    @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Resolution> resolutions;
 
     @ManyToMany
     @JoinTable(name = "Enigme_Categorie", joinColumns = @JoinColumn(name = "enigme_id"), inverseJoinColumns = @JoinColumn(name = "categorie_id"))
     private List<Categorie> categories;
-
-    // Getters and Setters
 }

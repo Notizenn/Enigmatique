@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+
 @Entity
 @Data
 public class Categorie {
@@ -16,7 +19,6 @@ public class Categorie {
     private String nom;
 
     @ManyToMany(mappedBy = "categories")
+    @JsonIgnoreProperties("categories") 
     private List<Enigme> enigmes;
-
-    // Getters and Setters
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 H:\Documents\Enigmathique\Enigmathique\src\main\java\com\example\entities\Enigme.java
 H:\Documents\Enigmathique\Enigmathique\src\main\java\com\example\ProjetJeeApplication.java
 H:\Documents\Enigmathique\Enigmathique\src\main\java\com\example\repository\CategorieRepository.java
@@ -20,3 +21,28 @@ H:\Documents\Enigmathique\Enigmathique\src\main\java\com\example\entities\Resolu
 H:\Documents\Enigmathique\Enigmathique\src\main\java\com\example\controllers\EnigmeController.java
 H:\Documents\Enigmathique\Enigmathique\src\main\java\com\example\repository\EnigmeRepository.java
 H:\Documents\Enigmathique\Enigmathique\src\main\java\com\example\entities\Utilisateur.java
+=======
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/IndiceController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/entities/Utilisateur.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/repository/IndiceRepository.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/RedirectController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/EnigmeController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/HomeController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/security/SecurityConfig.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/RegisterController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/repository/UtilisateurRepository.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/entities/Categorie.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/repository/ResolutionRepository.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/entities/Resolution.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/entities/Indice.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/LoginController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/service/CustomUserDetails.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/UtilisateurController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/repository/CategorieRepository.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/CategorieController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/entities/Enigme.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/controllers/ResolutionController.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/service/CustomUserDetailService.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/ProjetJeeApplication.java
+/home/cytech/Enigmathique/enigmathique/Enigmathique/src/main/java/com/example/repository/EnigmeRepository.java
+>>>>>>> b4e076798934699f3937e67a9a15fb80aa996f85
