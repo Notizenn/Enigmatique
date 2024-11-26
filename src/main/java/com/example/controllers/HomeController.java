@@ -74,8 +74,15 @@ public class HomeController {
         return "leaderboard"; 
     }
 
+    @GetMapping("/contact")
+    public String showContactPage() {
+        return "contact"; 
+    }
 
-
+    @GetMapping("/mentionslegales")
+    public String showMentionsLegalesPage() {
+        return "mentionslegales"; 
+    }
 
 
 }

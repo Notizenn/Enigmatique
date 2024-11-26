@@ -49,6 +49,32 @@ const enigmas = [
     }
 ];
 
+
+const statistiques = [
+    {
+        id: 1,
+        utilisateur: { id: 1, nom: "Alice" },
+        enigmesResolues: 15,
+        indicesUtilises: 3,
+        enigmesAvecAchatReponse: 2,
+        score: 450,
+        enigmesResoluesMaths: 7,
+        enigmesResoluesLogique: 5,
+        enigmesResoluesCrypto: 3
+    },
+    {
+        id: 2,
+        utilisateur: { id: 2, nom: "Tristan" },
+        enigmesResolues: 10,
+        indicesUtilises: 2,
+        enigmesAvecAchatReponse: 1,
+        score: 600,
+        enigmesResoluesMaths: 4,
+        enigmesResoluesLogique: 4,
+        enigmesResoluesCrypto: 2
+    }
+];
+
 let currentEnigma = null;
 let currentHintIndex = 0;
 
