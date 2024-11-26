@@ -2,28 +2,33 @@ package com.example.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.util.List;
+
 @Entity
 @Data
 public class Enigme {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @Column(nullable = false)
     private String titre;
-
+    
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String question;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String reponse;
-
+    private String description;
+    
     @Column(nullable = false)
-    private String indice;
+    private String reponse;
+    
+    @Column(nullable = false)
+    private String niveau;
 
     @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Statistique> statistiques; // Correction du mappedBy ici, maintenant c'est correct
+    private List<Indice> indices;
+
+    @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Statistique> statistiques;
 
     @ManyToMany
     @JoinTable(

@@ -21,10 +21,11 @@ public class HomeController {
     }
 
 
-    @GetMapping("/admin")
+    @GetMapping("/admin-home")
     public String showAdminPage() {
-        return "admin"; 
+        return "admin";
     }
+
 
     @GetMapping("/article1")
     public String showArticle1Page() {

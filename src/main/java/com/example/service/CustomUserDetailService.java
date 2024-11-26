@@ -23,17 +23,20 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        if (email == null || email.isEmpty()) {
+            throw new UsernameNotFoundException("L'email ne peut pas être vide");
+        }
+
         logger.info("Recherche de l'utilisateur avec l'email : {}", email);
 
-        // Rechercher l'utilisateur par email
         Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'email : " + email));
 
-        
         return org.springframework.security.core.userdetails.User.builder()
-                .username(utilisateur.getNom())
+                .username(utilisateur.getEmail()) // Utilisez `email` comme nom d'utilisateur
                 .password(utilisateur.getMotDePasse())
                 .roles(utilisateur.isAdmin() ? "ADMIN" : "USER")
                 .build();
     }
+
 }
