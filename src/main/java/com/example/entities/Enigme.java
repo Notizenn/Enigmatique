@@ -27,9 +27,8 @@ public class Enigme {
     @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Indice> indices;
 
-    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Statistique> statistiques;
-
+    @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Statistique> statistiques; // Correction du mappedBy ici, maintenant c'est correct
 
     @ManyToMany
     @JoinTable(
@@ -38,6 +37,4 @@ public class Enigme {
         inverseJoinColumns = @JoinColumn(name = "categorie_id")
     )
     private List<Categorie> categories;
-
-    
 }

@@ -5,11 +5,14 @@ import com.example.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -30,29 +33,52 @@ public class AdminController {
     @Autowired
     private CategorieRepository categorieRepository;
 
-    // *** Gestion des Utilisateurs ***
-    @GetMapping("/utilisateurs")
-    public String listUtilisateurs(Model model) {
+    // *** Page d'administration générale ***
+    @GetMapping
+    public String adminPage(Model model) {
         model.addAttribute("utilisateurs", utilisateurRepository.findAll());
-        return "admin/utilisateurs";
+        model.addAttribute("statistiques", statistiqueRepository.findAll());
+        model.addAttribute("indices", indiceRepository.findAll());
+        model.addAttribute("enigmes", enigmeRepository.findAll());
+        model.addAttribute("categories", categorieRepository.findAll());
+        return "admin"; // Assurez-vous que le fichier est nommé admin.html et est dans le bon dossier
     }
 
     @PostMapping("/utilisateurs/add")
-    public String addUtilisateur(@ModelAttribute Utilisateur utilisateur) {
+    public String addUtilisateur(@ModelAttribute Utilisateur utilisateur, Model model) {
+        // Vérification de l'unicité de l'email
+        if (utilisateurRepository.findByEmail(utilisateur.getEmail()).isPresent()) {
+            model.addAttribute("error", "L'email existe déjà. Veuillez en choisir un autre.");
+            model.addAttribute("utilisateurs", utilisateurRepository.findAll());
+            model.addAttribute("statistiques", statistiqueRepository.findAll());
+            model.addAttribute("indices", indiceRepository.findAll());
+            model.addAttribute("enigmes", enigmeRepository.findAll());
+            model.addAttribute("categories", categorieRepository.findAll());
+            return "admin"; // Retourne à la page admin avec un message d'erreur
+        }
+
+        // Encode le mot de passe avant de sauvegarder
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
+
+        // Sauvegarder l'utilisateur
         utilisateurRepository.save(utilisateur);
-        return "redirect:/admin/utilisateurs";
+        return "redirect:/admin";
     }
 
     @PutMapping("/utilisateurs/update/{id}")
     @ResponseBody
     public ResponseEntity<Utilisateur> updateUtilisateur(@PathVariable Long id, @RequestBody Utilisateur utilisateurDetails) {
-        return utilisateurRepository.findById(id).map(utilisateur -> {
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
+        if (utilisateurOptional.isPresent()) {
+            Utilisateur utilisateur = utilisateurOptional.get();
             utilisateur.setNom(utilisateurDetails.getNom());
             utilisateur.setEmail(utilisateurDetails.getEmail());
             utilisateur.setAdmin(utilisateurDetails.isAdmin());
             utilisateurRepository.save(utilisateur);
             return ResponseEntity.ok(utilisateur);
-        }).orElse(ResponseEntity.notFound().build());
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/utilisateurs/delete/{id}")
@@ -65,35 +91,29 @@ public class AdminController {
         return ResponseEntity.notFound().build();
     }
 
-    // *** Gestion des Statistiques ***
-    @GetMapping("/statistiques")
-    public String listStatistiques(Model model) {
-        model.addAttribute("statistiques", statistiqueRepository.findAll());
-        return "admin/statistiques";
+    @PostMapping("/indices/add")
+    public String addIndice(@ModelAttribute Indice indice, @RequestParam("enigmeId") Long enigmeId) {
+        Optional<Enigme> enigmeOptional = enigmeRepository.findById(enigmeId);
+        if (enigmeOptional.isPresent()) {
+            Enigme enigme = enigmeOptional.get();
+            indice.setEnigme(enigme); // Lier l'indice à l'énigme
+            indiceRepository.save(indice);
+        }
+        return "redirect:/admin";
     }
 
-    @DeleteMapping("/statistiques/delete/{id}")
+    @PutMapping("/indices/update/{id}")
     @ResponseBody
-    public ResponseEntity<Void> deleteStatistique(@PathVariable Long id) {
-        if (statistiqueRepository.existsById(id)) {
-            statistiqueRepository.deleteById(id);
-            return ResponseEntity.ok().build();
+    public ResponseEntity<Indice> updateIndice(@PathVariable Long id, @RequestBody Indice indiceDetails) {
+        Optional<Indice> indiceOptional = indiceRepository.findById(id);
+        if (indiceOptional.isPresent()) {
+            Indice indice = indiceOptional.get();
+            indice.setDescription(indiceDetails.getDescription());
+            indice.setCout(indiceDetails.getCout());
+            indiceRepository.save(indice);
+            return ResponseEntity.ok(indice);
         }
         return ResponseEntity.notFound().build();
-    }
-
-    // *** Gestion des Indices ***
-    @GetMapping("/indices")
-    public String listIndices(Model model) {
-        model.addAttribute("indices", indiceRepository.findAll());
-        model.addAttribute("enigmes", enigmeRepository.findAll()); // Pour associer un indice à une énigme
-        return "admin/indices";
-    }
-
-    @PostMapping("/indices/add")
-    public String addIndice(@ModelAttribute Indice indice) {
-        indiceRepository.save(indice);
-        return "redirect:/admin/indices";
     }
 
     @DeleteMapping("/indices/delete/{id}")
@@ -107,25 +127,36 @@ public class AdminController {
     }
 
     // *** Gestion des Énigmes ***
-    @GetMapping("/enigmes")
-    public String listEnigmes(Model model) {
-        model.addAttribute("enigmes", enigmeRepository.findAll());
-        model.addAttribute("categories", categorieRepository.findAll());
-        return "admin/enigmes";
-    }
-
     @PostMapping("/enigmes/add")
-    public String addEnigme(@ModelAttribute Enigme enigme) {
-        // Initialiser les listes vides si elles ne sont pas fournies
+    public String addEnigme(@ModelAttribute Enigme enigme, @RequestParam(value = "categoriesIds", required = false) List<Long> categoriesIds) {
         if (enigme.getIndices() == null) {
             enigme.setIndices(new ArrayList<>());
         }
-        if (enigme.getCategories() == null) {
+        if (categoriesIds != null && !categoriesIds.isEmpty()) {
+            List<Categorie> categories = categorieRepository.findAllById(categoriesIds);
+            enigme.setCategories(categories);
+        } else {
             enigme.setCategories(new ArrayList<>());
         }
-
         enigmeRepository.save(enigme);
-        return "redirect:/admin/enigmes";
+        return "redirect:/admin";
+    }
+
+    @PutMapping("/enigmes/update/{id}")
+    @ResponseBody
+    public ResponseEntity<Enigme> updateEnigme(@PathVariable Long id, @RequestBody Enigme enigmeDetails) {
+        Optional<Enigme> enigmeOptional = enigmeRepository.findById(id);
+        if (enigmeOptional.isPresent()) {
+            Enigme enigme = enigmeOptional.get();
+            enigme.setTitre(enigmeDetails.getTitre());
+            enigme.setDescription(enigmeDetails.getDescription());
+            enigme.setReponse(enigmeDetails.getReponse());
+            enigme.setNiveau(enigmeDetails.getNiveau());
+            enigme.setCategories(enigmeDetails.getCategories());
+            enigmeRepository.save(enigme);
+            return ResponseEntity.ok(enigme);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/enigmes/delete/{id}")
@@ -139,16 +170,23 @@ public class AdminController {
     }
 
     // *** Gestion des Catégories ***
-    @GetMapping("/categories")
-    public String listCategories(Model model) {
-        model.addAttribute("categories", categorieRepository.findAll());
-        return "admin/categories";
-    }
-
     @PostMapping("/categories/add")
     public String addCategorie(@ModelAttribute Categorie categorie) {
         categorieRepository.save(categorie);
-        return "redirect:/admin/categories";
+        return "redirect:/admin";
+    }
+
+    @PutMapping("/categories/update/{id}")
+    @ResponseBody
+    public ResponseEntity<Categorie> updateCategorie(@PathVariable Long id, @RequestBody Categorie categorieDetails) {
+        Optional<Categorie> categorieOptional = categorieRepository.findById(id);
+        if (categorieOptional.isPresent()) {
+            Categorie categorie = categorieOptional.get();
+            categorie.setNom(categorieDetails.getNom());
+            categorieRepository.save(categorie);
+            return ResponseEntity.ok(categorie);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/categories/delete/{id}")

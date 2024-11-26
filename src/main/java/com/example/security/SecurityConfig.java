@@ -6,11 +6,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     private final CustomUserDetailService userDetailsService;
@@ -23,22 +25,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(requests -> requests
-                // Permettre l'accès à l'ajout d'énigmes pour les utilisateurs authentifiés
-                .requestMatchers("/admin/enigmes/add").authenticated() 
-                // Restreindre les autres routes /admin aux administrateurs
+                .requestMatchers("/", "/home", "/register", "/login", "/h2-console/**", "/css/**", "/js/**", "/img/**", "/static/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/login", "/register", "/home", "/").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll()
-                .anyRequest().authenticated())
+                .anyRequest().authenticated()
+            )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/admin/enigmes/add") // Désactiver CSRF pour cette route si nécessaire
+                .ignoringRequestMatchers("/h2-console/**")
                 .disable())
-            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.disable()))
             .formLogin(login -> login
                 .loginPage("/login")
                 .loginProcessingUrl("/perform_login")
-                .usernameParameter("email")
-                .passwordParameter("motDePasse")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .defaultSuccessUrl("/home", true)
                 .failureUrl("/login?error=true"))
             .logout(logout -> logout
@@ -48,7 +48,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -14,6 +14,10 @@ public class Statistique {
     @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
 
+    @ManyToOne
+    @JoinColumn(name = "enigme_id", nullable = true) // Correction ici
+    private Enigme enigme;
+
     @Column(nullable = false)
     private Integer enigmesResolues = 0;
 
@@ -26,7 +30,6 @@ public class Statistique {
     @Column(nullable = false)
     private Integer score = 0;
 
-    // Champs pour chaque catégorie
     @Column(nullable = false)
     private Integer enigmesResoluesMaths = 0;
 
@@ -47,7 +50,6 @@ public class Statistique {
         }
         score += points;
 
-        // Incrémenter le compteur de la catégorie correspondante
         switch (categorie.toLowerCase()) {
             case "maths":
                 enigmesResoluesMaths++;
