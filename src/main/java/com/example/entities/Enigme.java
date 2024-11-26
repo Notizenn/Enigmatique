@@ -14,9 +14,9 @@ public class Enigme {
     private String titre;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String question;
+    private String description;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false)
     private String reponse;
 
     @Column(nullable = false)
@@ -24,10 +24,6 @@ public class Enigme {
 
 
     @ManyToMany
-    @JoinTable(
-        name = "Enigme_Categorie",
-        joinColumns = @JoinColumn(name = "enigme_id"),
-        inverseJoinColumns = @JoinColumn(name = "categorie_id")
-    )
+    @JoinTable(name = "Enigme_Categorie", joinColumns = @JoinColumn(name = "enigme_id"), inverseJoinColumns = @JoinColumn(name = "categorie_id"))
     private List<Categorie> categories;
 }

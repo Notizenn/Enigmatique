@@ -16,7 +16,7 @@ updateUserCoinsDisplay();
 const purchaseModal = new bootstrap.Modal(document.getElementById('purchaseModal'));
 let coinsToAdd = 0;
 
-document.querySelectorAll('.btn-outline-dark').forEach(button => {
+document.querySelectorAll('.btn-acheter').forEach(button => {
     button.addEventListener('click', event => {
         event.preventDefault();
         const packText = button.parentElement.querySelector('ul li').textContent;

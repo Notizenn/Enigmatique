@@ -85,7 +85,7 @@ public class EnigmeController {
         if (enigmeExistante.isPresent()) {
             Enigme enigme = enigmeExistante.get();
             enigme.setTitre(detailsEnigme.getTitre());
-            enigme.setQuestion(detailsEnigme.getQuestion());
+            enigme.setDescription(detailsEnigme.getDescription());
             enigme.setReponse(detailsEnigme.getReponse());
             enigme.setIndice(detailsEnigme.getIndice());
 
