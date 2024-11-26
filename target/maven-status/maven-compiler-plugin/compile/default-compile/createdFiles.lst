@@ -16,9 +16,14 @@ com/example/controllers/IndiceController.class
 com/example/ProjetJeeApplication.class
 com/example/repository/EnigmeRepository.class
 com/example/repository/CategorieRepository.class
-com/example/service/CustomUserDetails.class
-com/example/controllers/UtilisateurController.class
 com/example/repository/IndiceRepository.class
 com/example/service/CustomUserDetailService.class
-com/example/entities/Categorie.class
 com/example/security/SecurityConfig.class
+com/example/controllers/RegisterController.class
+com/example/controllers/LoginController.class
+com/example/entities/Utilisateur.class
+com/example/controllers/IndiceController.class
+com/example/ProjetJeeApplication.class
+com/example/service/CustomUserDetails.class
+com/example/controllers/UtilisateurController.class
+com/example/entities/Categorie.class
