@@ -1,3 +1,4 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
 package com.example.controllers;
 
 import org.springframework.security.core.Authentication;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
+   public HomeController() {
+   }
 
     @GetMapping("/home")
     public String homePage(Model model) {
@@ -72,8 +75,15 @@ public class HomeController {
         return "leaderboard"; 
     }
 
+    @GetMapping("/contact")
+    public String showContactPage() {
+        return "contact"; 
+    }
 
-
+    @GetMapping("/mentionslegales")
+    public String showMentionsLegalesPage() {
+        return "mentionslegales"; 
+    }
 
 
 }

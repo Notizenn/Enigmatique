@@ -11,13 +11,13 @@ public class Utilisateur {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false)
     private String nom;
-    
+
     @Column(nullable = false, unique = true)
     private String email;
-    
+
     @Column(nullable = false)
     private String motDePasse;
 
@@ -30,6 +30,5 @@ public class Utilisateur {
 
     @Column
     private boolean admin;
-
 
 }

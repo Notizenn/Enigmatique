@@ -1,8 +1,5 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
 package com.example.controllers;
-
-
-
-
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +11,8 @@ import org.springframework.ui.Model;
 
 @Controller 
 public class LoginController {
+   public LoginController() {
+   }
 
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,

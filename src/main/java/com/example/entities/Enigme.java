@@ -31,10 +31,6 @@ public class Enigme {
     private List<Statistique> statistiques;
 
     @ManyToMany
-    @JoinTable(
-        name = "Enigme_Categorie",
-        joinColumns = @JoinColumn(name = "enigme_id"),
-        inverseJoinColumns = @JoinColumn(name = "categorie_id")
-    )
+    @JoinTable(name = "Enigme_Categorie", joinColumns = @JoinColumn(name = "enigme_id"), inverseJoinColumns = @JoinColumn(name = "categorie_id"))
     private List<Categorie> categories;
 }

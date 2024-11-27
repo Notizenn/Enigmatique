@@ -1,3 +1,4 @@
+
 /home/cytech/Cours/projetJEE/projetJEE/src/main/java/com/example/repository/EnigmeRepository.java
 /home/cytech/Cours/projetJEE/projetJEE/src/main/java/com/example/security/SecurityConfig.java
 /home/cytech/Cours/projetJEE/projetJEE/src/main/java/com/example/service/CustomUserDetailService.java
@@ -22,3 +23,4 @@
 /home/cytech/Cours/projetJEE/projetJEE/src/main/java/com/example/entities/Indice.java
 /home/cytech/Cours/projetJEE/projetJEE/src/main/java/com/example/controllers/CategorieController.java
 /home/cytech/Cours/projetJEE/projetJEE/src/main/java/com/example/controllers/RedirectController.java
+>>>>>>> b4e076798934699f3937e67a9a15fb80aa996f85

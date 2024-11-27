@@ -1,3 +1,4 @@
+
 com/example/controllers/RegisterController.class
 com/example/controllers/HomeController.class
 com/example/controllers/CategorieController.class
@@ -27,3 +28,4 @@ com/example/ProjetJeeApplication.class
 com/example/service/CustomUserDetails.class
 com/example/controllers/UtilisateurController.class
 com/example/entities/Categorie.class
+>>>>>>> b4e076798934699f3937e67a9a15fb80aa996f85
