@@ -1,5 +1,6 @@
 package com.example.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,7 +16,8 @@ public class Statistique {
     private Utilisateur utilisateur;
 
     @ManyToOne
-    @JoinColumn(name = "enigme_id", nullable = true) // Correction ici
+    @JoinColumn(name = "enigme_id", nullable = true)
+    @JsonBackReference // Utilisé pour éviter la boucle infinie lors de la sérialisation avec Enigme
     private Enigme enigme;
 
     @Column(nullable = false)
@@ -65,4 +67,6 @@ public class Statistique {
                 throw new IllegalArgumentException("Catégorie invalide : " + categorie);
         }
     }
+
+    // Getters and Setters (générés automatiquement avec Lombok)
 }

@@ -1,5 +1,6 @@
 package com.example.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,7 +19,8 @@ public class Indice {
 
     @ManyToOne
     @JoinColumn(name = "enigme_id", nullable = false)
+    @JsonBackReference // Utilisé pour éviter la boucle infinie lors de la sérialisation avec Enigme
     private Enigme enigme;
 
-    // Getters and Setters
+    // Getters and Setters (générés automatiquement avec Lombok)
 }

@@ -1,5 +1,6 @@
 package com.example.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,9 +26,11 @@ public class Enigme {
     private String niveau;
 
     @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Gérer la relation parent avec Indice
     private List<Indice> indices;
 
     @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Gérer la relation parent avec Statistique
     private List<Statistique> statistiques;
 
     @ManyToMany
