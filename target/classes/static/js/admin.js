@@ -202,12 +202,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const editModal = new bootstrap.Modal(document.getElementById("editModal"));
             editModal.show();
             console.log("Modale affichée");
-
-            // Gérer la fermeture de la modale et réinitialiser les champs
-            const cancelButton = document.querySelector("#editModal .btn-close, #editModal .btn-secondary");
-            cancelButton.addEventListener("click", function () {
-                editFields.innerHTML = "";
-            });
         });
     });
 });
