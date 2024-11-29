@@ -88,6 +88,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(response => {
                     if (response.ok) {
                         console.log(`Modification réussie pour ID = ${entityId}`);
+                        // Fermer la modale après modification réussie
+                        const editModal = bootstrap.Modal.getInstance(document.getElementById("editModal"));
+                        if (editModal) {
+                            editModal.hide();
+                        }
+                        removeModalBackdrop();
                         refreshData();
                     } else {
                         console.error(`Erreur lors de la modification : ${response.statusText}`);
@@ -170,7 +176,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             </div>`;
                         break;
                     case "indice":
-                        const enigmeTitre = this.getAttribute("data-enigmeTitre") || "Inconnu";
                         editFields.innerHTML = `
                             <div class="mb-3">
                                 <label for="editDescription" class="form-label">Description</label>
@@ -183,7 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="mb-3">
                                 <label for="editEnigmeId" class="form-label">Énigme</label>
                                 <select class="form-control" id="editEnigmeId" required>
-                                    <option value="${this.getAttribute("data-enigmeId")}">${enigmeTitre}</option>
+                                    <option value="${this.getAttribute("data-enigmeId")}">${this.getAttribute("data-enigmeTitre") || this.getAttribute("data-enigmeId")}</option>
                                 </select>
                             </div>`;
                         break;
@@ -210,6 +215,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setupEditButtons();
 
+    // Fonction pour enlever le backdrop restant
+    function removeModalBackdrop() {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = ''; // Réinitialiser le défilement
+        const modalBackdrop = document.querySelector('.modal-backdrop');
+        if (modalBackdrop) {
+            modalBackdrop.remove();
+        }
+    }
+
+    // Ajouter des écouteurs pour les boutons "Annuler" et la croix de fermeture de la modale
+    const editModalElement = document.getElementById("editModal");
+    if (editModalElement) {
+        editModalElement.addEventListener('hidden.bs.modal', function () {
+            removeModalBackdrop();
+        });
+    }
+
     // Fonction pour rafraîchir les données affichées sans recharger la page
     function refreshData() {
         fetch('/admin/data')
@@ -217,25 +240,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!response.ok) {
                     throw new Error(`Erreur HTTP ! statut : ${response.status}`);
                 }
-                return response.text(); // Récupérer la réponse en tant que texte
+                return response.json();
             })
-            .then(dataText => {
-                console.log("Données reçues du serveur :", dataText.length, "caractères");
-    
-                try {
-                    const data = JSON.parse(dataText);
-                    if (data) {
-                        updateTables(data);
-                    } else {
-                        console.error('Les données sont manquantes dans la réponse');
-                    }
-                } catch (e) {
-                    console.error('Erreur lors du parsing JSON des données:', e, "\nContenu de la réponse (partiel) :", dataText.substring(0, 500));
-                }
+            .then(data => {
+                console.log("Données reçues du serveur :", JSON.stringify(data).length, "caractères");
+                updateTables(data);
             })
             .catch(error => console.error('Erreur lors du rafraîchissement des données:', error));
     }
-    
+
     // Fonction pour mettre à jour les tableaux avec les nouvelles données
     function updateTables(data) {
         // Créer une "map" des énigmes pour un accès facile par ID
@@ -303,7 +316,8 @@ document.addEventListener("DOMContentLoaded", function () {
         indicesTable.innerHTML = "";
         if (data.indices) {
             data.indices.forEach(indice => {
-                const enigmeTitre = enigmesMap[indice.enigmeId] ? enigmesMap[indice.enigmeId].titre : "Inconnu";
+                const enigme = enigmesMap[indice.enigmeId];
+                const enigmeTitre = enigme ? enigme.titre : "Inconnu";
                 indicesTable.innerHTML += `
                     <tr>
                         <td>${indice.description}</td>
@@ -397,3 +411,4 @@ document.addEventListener("DOMContentLoaded", function () {
         ajouterEntite("indiceForm", "/admin/indices/add", data);
     });
 });
+

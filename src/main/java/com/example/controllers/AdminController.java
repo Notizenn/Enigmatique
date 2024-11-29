@@ -49,34 +49,44 @@ public class AdminController {
     }
 
     @GetMapping("/data")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getAllData() {
-        try {
-            Map<String, Object> data = new HashMap<>();
-            
-            // Remplir la carte des données avec des utilisateurs sans mot de passe et seulement les données nécessaires
-            List<Map<String, Object>> utilisateurs = utilisateurRepository.findAll().stream().map(utilisateur -> {
-                Map<String, Object> utilisateurData = new HashMap<>();
-                utilisateurData.put("id", utilisateur.getId());
-                utilisateurData.put("nom", utilisateur.getNom());
-                utilisateurData.put("email", utilisateur.getEmail());
-                utilisateurData.put("sous", utilisateur.getSous());
-                utilisateurData.put("admin", utilisateur.isAdmin());
-                return utilisateurData;
-            }).collect(Collectors.toList());
+@ResponseBody
+public ResponseEntity<Map<String, Object>> getAllData() {
+    try {
+        Map<String, Object> data = new HashMap<>();
 
-            data.put("utilisateurs", utilisateurs);
-            data.put("enigmes", enigmeRepository.findAll());
-            data.put("categories", categorieRepository.findAll());
-            data.put("indices", indiceRepository.findAll());
-            data.put("statistiques", statistiqueRepository.findAll());
+        // Remplir la carte des données avec des utilisateurs sans mot de passe et seulement les données nécessaires
+        List<Map<String, Object>> utilisateurs = utilisateurRepository.findAll().stream().map(utilisateur -> {
+            Map<String, Object> utilisateurData = new HashMap<>();
+            utilisateurData.put("id", utilisateur.getId());
+            utilisateurData.put("nom", utilisateur.getNom());
+            utilisateurData.put("email", utilisateur.getEmail());
+            utilisateurData.put("sous", utilisateur.getSous());
+            utilisateurData.put("admin", utilisateur.isAdmin());
+            return utilisateurData;
+        }).collect(Collectors.toList());
 
-            return ResponseEntity.ok(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        List<Map<String, Object>> indices = indiceRepository.findAll().stream().map(indice -> {
+            Map<String, Object> indiceData = new HashMap<>();
+            indiceData.put("id", indice.getId());
+            indiceData.put("description", indice.getDescription());
+            indiceData.put("cout", indice.getCout());
+            indiceData.put("enigmeId", indice.getEnigme().getId());
+            indiceData.put("enigmeTitre", indice.getEnigme().getTitre());
+            return indiceData;
+        }).collect(Collectors.toList());
+
+        data.put("utilisateurs", utilisateurs);
+        data.put("enigmes", enigmeRepository.findAll());
+        data.put("categories", categorieRepository.findAll());
+        data.put("indices", indices);
+        data.put("statistiques", statistiqueRepository.findAll());
+
+        return ResponseEntity.ok(data);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
+}
 
 
 
