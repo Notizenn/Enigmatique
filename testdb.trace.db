@@ -799,3 +799,15 @@ Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The connection wa
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	... 16 more
+2024-11-22 14:12:07.507870+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select * [*]form utilisateur"; SQL statement:
+select * form utilisateur [42000-224]
+2024-11-22 14:12:24.656188+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select * [*]form Utilisateur"; SQL statement:
+select * form Utilisateur [42000-224]
+2024-11-22 16:46:50.891149+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]DESCRIBE utilisateur"; expected "DELETE, DROP"; SQL statement:
+DESCRIBE utilisateur [42001-224]
+2024-11-25 09:59:10.480095+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select * [*]form utilisateur"; SQL statement:
+select * form utilisateur [42000-224]

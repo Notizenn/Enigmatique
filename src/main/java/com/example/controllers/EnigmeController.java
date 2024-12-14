@@ -22,7 +22,7 @@ public class EnigmeController {
     @Autowired
     private CategorieRepository categorieRepository;
 
-  
+    // Obtenir toutes les énigmes
     @GetMapping
     public ResponseEntity<List<Enigme>> obtenirToutesLesEnigmes() {
         List<Enigme> enigmes = enigmeRepository.findAll();
@@ -32,7 +32,7 @@ public class EnigmeController {
         return new ResponseEntity<>(enigmes, HttpStatus.OK);
     }
 
-    
+    // Obtenir une énigme par ID
     @GetMapping("/{id}")
     public ResponseEntity<Enigme> obtenirEnigmeParId(@PathVariable Long id) {
         Optional<Enigme> enigme = enigmeRepository.findById(id);
@@ -40,25 +40,22 @@ public class EnigmeController {
                      .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-  
-    @SuppressWarnings("null")
+    // Créer une nouvelle énigme
     @PostMapping
     public ResponseEntity<Enigme> creerEnigme(@RequestBody Enigme enigme) {
         try {
-     
             Enigme nouvelleEnigme = enigmeRepository.save(enigme);
             return new ResponseEntity<>(nouvelleEnigme, HttpStatus.CREATED);
         } catch (Exception e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @SuppressWarnings("null")
+
+    // Ajouter plusieurs énigmes en une seule requête
     @PostMapping("/bulk")
     public ResponseEntity<List<Enigme>> ajouterEnigmes(@RequestBody List<Enigme> enigmes) {
         try {
-         
             for (Enigme enigme : enigmes) {
                 if (enigme.getCategories() != null) {
                     List<Long> categorieIds = enigme.getCategories().stream()
@@ -69,7 +66,6 @@ public class EnigmeController {
                 }
             }
 
-          
             List<Enigme> nouvellesEnigmes = enigmeRepository.saveAll(enigmes);
             return new ResponseEntity<>(nouvellesEnigmes, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -77,7 +73,7 @@ public class EnigmeController {
         }
     }
 
-
+    // Mettre à jour une énigme
     @PutMapping("/{id}")
     public ResponseEntity<Enigme> mettreAJourEnigme(@PathVariable Long id, @RequestBody Enigme detailsEnigme) {
         Optional<Enigme> enigmeExistante = enigmeRepository.findById(id);
@@ -87,15 +83,13 @@ public class EnigmeController {
             enigme.setTitre(detailsEnigme.getTitre());
             enigme.setDescription(detailsEnigme.getDescription());
             enigme.setReponse(detailsEnigme.getReponse());
-            enigme.setIndice(detailsEnigme.getIndice());
+            enigme.setNiveau(detailsEnigme.getNiveau());
 
             if (detailsEnigme.getCategories() != null && !detailsEnigme.getCategories().isEmpty()) {
                 List<Long> categorieIds = detailsEnigme.getCategories().stream()
-                        .map(categorie -> categorie.getId())
+                        .map(Categorie::getId)
                         .toList();
-
-                List<com.example.entities.Categorie> categories = categorieRepository.findAllById(categorieIds);
-
+                List<Categorie> categories = categorieRepository.findAllById(categorieIds);
                 if (categories.size() != categorieIds.size()) {
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 }
@@ -109,7 +103,7 @@ public class EnigmeController {
         }
     }
 
-  
+    // Supprimer une énigme
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> supprimerEnigme(@PathVariable Long id) {
         Optional<Enigme> enigme = enigmeRepository.findById(id);
