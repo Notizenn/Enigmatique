@@ -1,9 +1,9 @@
 package com.example.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.List;
 
 @Entity
@@ -26,16 +26,15 @@ public class Enigme {
     private String niveau;
 
     @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Gérer la relation parent avec Indice
+    @JsonManagedReference 
     private List<Indice> indices;
 
     @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Gérer la relation parent avec Statistique
+    @JsonManagedReference 
     private List<Statistique> statistiques;
 
-    @ManyToMany
-    @JoinTable(name = "Enigme_Categorie", joinColumns = @JoinColumn(name = "enigme_id"), inverseJoinColumns = @JoinColumn(name = "categorie_id"))
-    private List<Categorie> categories;
-
-   
+    @ManyToOne
+    @JoinColumn(name = "categorie_id")
+    @JsonIgnoreProperties("enigmes")
+    private Categorie categorie;
 }

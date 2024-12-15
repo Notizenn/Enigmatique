@@ -1,7 +1,14 @@
 package com.example.controllers;
 
-import com.example.entities.*;
-import com.example.repository.*;
+import com.example.entities.Categorie;
+import com.example.entities.Enigme;
+import com.example.entities.Utilisateur;
+import com.example.entities.Indice;
+import com.example.repository.CategorieRepository;
+import com.example.repository.EnigmeRepository;
+import com.example.repository.UtilisateurRepository;
+import com.example.repository.IndiceRepository;
+import com.example.repository.StatistiqueRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,11 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -48,48 +51,79 @@ public class AdminController {
         return "admin"; // Assurez-vous que le fichier est nommé admin.html et est dans le bon dossier
     }
 
+    // *** Endpoint pour récupérer toutes les données en JSON ***
     @GetMapping("/data")
-@ResponseBody
-public ResponseEntity<Map<String, Object>> getAllData() {
-    try {
-        Map<String, Object> data = new HashMap<>();
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAllData() {
+        try {
+            Map<String, Object> data = new HashMap<>();
 
-        // Remplir la carte des données avec des utilisateurs sans mot de passe et seulement les données nécessaires
-        List<Map<String, Object>> utilisateurs = utilisateurRepository.findAll().stream().map(utilisateur -> {
-            Map<String, Object> utilisateurData = new HashMap<>();
-            utilisateurData.put("id", utilisateur.getId());
-            utilisateurData.put("nom", utilisateur.getNom());
-            utilisateurData.put("email", utilisateur.getEmail());
-            utilisateurData.put("sous", utilisateur.getSous());
-            utilisateurData.put("admin", utilisateur.isAdmin());
-            return utilisateurData;
-        }).collect(Collectors.toList());
+            // Utilisateurs sans mot de passe
+            List<Map<String, Object>> utilisateurs = utilisateurRepository.findAll().stream().map(utilisateur -> {
+                Map<String, Object> utilisateurData = new HashMap<>();
+                utilisateurData.put("id", utilisateur.getId());
+                utilisateurData.put("nom", utilisateur.getNom());
+                utilisateurData.put("email", utilisateur.getEmail());
+                utilisateurData.put("sous", utilisateur.getSous());
+                utilisateurData.put("admin", utilisateur.isAdmin());
+                return utilisateurData;
+            }).collect(Collectors.toList());
 
-        List<Map<String, Object>> indices = indiceRepository.findAll().stream().map(indice -> {
-            Map<String, Object> indiceData = new HashMap<>();
-            indiceData.put("id", indice.getId());
-            indiceData.put("description", indice.getDescription());
-            indiceData.put("cout", indice.getCout());
-            indiceData.put("enigmeId", indice.getEnigme().getId());
-            indiceData.put("enigmeTitre", indice.getEnigme().getTitre());
-            return indiceData;
-        }).collect(Collectors.toList());
+            // Indices avec informations sur les énigmes
+            List<Map<String, Object>> indices = indiceRepository.findAll().stream().map(indice -> {
+                Map<String, Object> indiceData = new HashMap<>();
+                indiceData.put("id", indice.getId());
+                indiceData.put("description", indice.getDescription());
+                indiceData.put("cout", indice.getCout());
+                indiceData.put("enigmeId", indice.getEnigme().getId());
+                indiceData.put("enigmeTitre", indice.getEnigme().getTitre());
+                return indiceData;
+            }).collect(Collectors.toList());
 
-        data.put("utilisateurs", utilisateurs);
-        data.put("enigmes", enigmeRepository.findAll());
-        data.put("categories", categorieRepository.findAll());
-        data.put("indices", indices);
-        data.put("statistiques", statistiqueRepository.findAll());
+            // Enigmes avec informations sur les catégories
+            List<Map<String, Object>> enigmes = enigmeRepository.findAll().stream().map(enigme -> {
+                Map<String, Object> enigmeData = new HashMap<>();
+                enigmeData.put("id", enigme.getId());
+                enigmeData.put("titre", enigme.getTitre());
+                enigmeData.put("description", enigme.getDescription());
+                enigmeData.put("reponse", enigme.getReponse());
+                enigmeData.put("niveau", enigme.getNiveau());
+                enigmeData.put("categorieId", enigme.getCategorie() != null ? enigme.getCategorie().getId() : null);
+                enigmeData.put("categorieNom", enigme.getCategorie() != null ? enigme.getCategorie().getNom() : "Sans Catégorie");
+                return enigmeData;
+            }).collect(Collectors.toList());
 
-        return ResponseEntity.ok(data);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            // Catégories
+            List<Map<String, Object>> categories = categorieRepository.findAll().stream().map(categorie -> {
+                Map<String, Object> categorieData = new HashMap<>();
+                categorieData.put("id", categorie.getId());
+                categorieData.put("nom", categorie.getNom());
+                return categorieData;
+            }).collect(Collectors.toList());
+
+            // Statistiques
+            List<Map<String, Object>> statistiques = statistiqueRepository.findAll().stream().map(statistique -> {
+                Map<String, Object> statistiqueData = new HashMap<>();
+                statistiqueData.put("id", statistique.getId());
+                statistiqueData.put("utilisateurNom", statistique.getUtilisateur().getNom());
+                statistiqueData.put("score", statistique.getScore());
+                return statistiqueData;
+            }).collect(Collectors.toList());
+
+            data.put("utilisateurs", utilisateurs);
+            data.put("enigmes", enigmes);
+            data.put("categories", categories);
+            data.put("indices", indices);
+            data.put("statistiques", statistiques);
+
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
-}
 
-
-
+    // *** Gestion des Utilisateurs ***
     @PostMapping("/utilisateurs/add")
     public ResponseEntity<?> addUtilisateur(@RequestBody Utilisateur utilisateur) {
         try {
@@ -151,6 +185,7 @@ public ResponseEntity<Map<String, Object>> getAllData() {
         }
     }
 
+    // *** Gestion des Indices ***
     @PostMapping("/indices/add")
     public ResponseEntity<?> addIndice(@RequestBody Map<String, Object> requestData) {
         try {
@@ -176,7 +211,6 @@ public ResponseEntity<Map<String, Object>> getAllData() {
         }
     }
 
-
     @PutMapping("/indices/update/{id}")
     @ResponseBody
     public ResponseEntity<Indice> updateIndice(@PathVariable Long id, @RequestBody Indice indiceDetails) {
@@ -186,6 +220,18 @@ public ResponseEntity<Map<String, Object>> getAllData() {
                 Indice indice = indiceOptional.get();
                 indice.setDescription(indiceDetails.getDescription());
                 indice.setCout(indiceDetails.getCout());
+
+                // Optionnel : Mettre à jour l'énigme si nécessaire
+                if (indiceDetails.getEnigme() != null) {
+                    Long newEnigmeId = indiceDetails.getEnigme().getId();
+                    Optional<Enigme> newEnigmeOptional = enigmeRepository.findById(newEnigmeId);
+                    if (newEnigmeOptional.isPresent()) {
+                        indice.setEnigme(newEnigmeOptional.get());
+                    } else {
+                        return ResponseEntity.badRequest().build();
+                    }
+                }
+
                 indiceRepository.save(indice);
                 return ResponseEntity.ok(indice);
             }
@@ -213,17 +259,26 @@ public ResponseEntity<Map<String, Object>> getAllData() {
 
     // *** Gestion des Énigmes ***
     @PostMapping("/enigmes/add")
-    public ResponseEntity<?> addEnigme(@RequestBody Enigme enigme, @RequestParam(value = "categoriesIds", required = false) List<Long> categoriesIds) {
+    public ResponseEntity<?> addEnigme(@RequestBody Map<String, Object> requestData) {
         try {
-            if (enigme.getIndices() == null) {
-                enigme.setIndices(new ArrayList<>());
+            String titre = (String) requestData.get("titre");
+            String description = (String) requestData.get("description");
+            String reponse = (String) requestData.get("reponse");
+            String niveau = (String) requestData.get("niveau");
+            Long categorieId = Long.parseLong(requestData.get("categorieId").toString());
+
+            Optional<Categorie> categorieOptional = categorieRepository.findById(categorieId);
+            if (!categorieOptional.isPresent()) {
+                return ResponseEntity.badRequest().body("Catégorie non trouvée.");
             }
-            if (categoriesIds != null && !categoriesIds.isEmpty()) {
-                List<Categorie> categories = categorieRepository.findAllById(categoriesIds);
-                enigme.setCategories(categories);
-            } else {
-                enigme.setCategories(new ArrayList<>());
-            }
+
+            Enigme enigme = new Enigme();
+            enigme.setTitre(titre);
+            enigme.setDescription(description);
+            enigme.setReponse(reponse);
+            enigme.setNiveau(niveau);
+            enigme.setCategorie(categorieOptional.get());
+
             enigmeRepository.save(enigme);
             return ResponseEntity.ok(enigme);
         } catch (Exception e) {
@@ -234,20 +289,39 @@ public ResponseEntity<Map<String, Object>> getAllData() {
 
     @PutMapping("/enigmes/update/{id}")
     @ResponseBody
-    public ResponseEntity<Enigme> updateEnigme(@PathVariable Long id, @RequestBody Enigme enigmeDetails) {
+    public ResponseEntity<?> updateEnigme(@PathVariable Long id, @RequestBody Map<String, Object> requestData) {
         try {
             Optional<Enigme> enigmeOptional = enigmeRepository.findById(id);
-            if (enigmeOptional.isPresent()) {
-                Enigme enigme = enigmeOptional.get();
-                enigme.setTitre(enigmeDetails.getTitre());
-                enigme.setDescription(enigmeDetails.getDescription());
-                enigme.setReponse(enigmeDetails.getReponse());
-                enigme.setNiveau(enigmeDetails.getNiveau());
-                enigme.setCategories(enigmeDetails.getCategories());
-                enigmeRepository.save(enigme);
-                return ResponseEntity.ok(enigme);
+            if (!enigmeOptional.isPresent()) {
+                return ResponseEntity.notFound().build();
             }
-            return ResponseEntity.notFound().build();
+
+            Enigme enigme = enigmeOptional.get();
+
+            // Mise à jour des champs
+            if (requestData.containsKey("titre")) {
+                enigme.setTitre((String) requestData.get("titre"));
+            }
+            if (requestData.containsKey("description")) {
+                enigme.setDescription((String) requestData.get("description"));
+            }
+            if (requestData.containsKey("reponse")) {
+                enigme.setReponse((String) requestData.get("reponse"));
+            }
+            if (requestData.containsKey("niveau")) {
+                enigme.setNiveau((String) requestData.get("niveau"));
+            }
+            if (requestData.containsKey("categorieId")) {
+                Long categorieId = Long.parseLong(requestData.get("categorieId").toString());
+                Optional<Categorie> categorieOptional = categorieRepository.findById(categorieId);
+                if (!categorieOptional.isPresent()) {
+                    return ResponseEntity.badRequest().body("Catégorie non trouvée.");
+                }
+                enigme.setCategorie(categorieOptional.get());
+            }
+
+            enigmeRepository.save(enigme);
+            return ResponseEntity.ok(enigme);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

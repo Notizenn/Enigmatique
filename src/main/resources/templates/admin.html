@@ -36,9 +36,9 @@
                     <input type="text" name="nom" placeholder="Nom" class="form-control mb-2" required>
                     <input type="email" name="email" placeholder="Email" class="form-control mb-2" required>
                     <input type="password" name="motDePasse" placeholder="Mot de passe" class="form-control mb-2" required>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="admin" id="admin">
-                        <label for="admin" class="form-check-label">Admin</label>
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" name="admin" id="adminCheckbox">
+                        <label for="adminCheckbox" class="form-check-label">Admin</label>
                     </div>
                     <button type="button" class="btn btn-primary" id="ajouterUtilisateurButton">Ajouter Utilisateur</button>
                 </form>
@@ -57,8 +57,16 @@
                             <td th:text="${utilisateur.email}"></td>
                             <td th:text="${utilisateur.admin ? 'Oui' : 'Non'}"></td>
                             <td>
-                                <button class="btn btn-warning btn-sm btn-edit" th:attr="data-id=${utilisateur.id}, data-type='utilisateur', data-nom=${utilisateur.nom}, data-email=${utilisateur.email}, data-admin=${utilisateur.admin}" data-bs-toggle="modal" data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete" th:attr="data-id=${utilisateur.id}">Supprimer</button>
+                                <button class="btn btn-warning btn-sm btn-edit" 
+                                        th:attr="data-id=${utilisateur.id}, 
+                                                data-type='utilisateur', 
+                                                data-nom=${utilisateur.nom}, 
+                                                data-email=${utilisateur.email}, 
+                                                data-admin=${utilisateur.admin}" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editModal">Modifier</button>
+                                <button class="btn btn-danger btn-sm btn-delete" 
+                                        th:attr="data-id=${utilisateur.id}">Supprimer</button>
                             </td>
                         </tr>
                     </tbody>
@@ -73,9 +81,17 @@
                     <textarea name="description" placeholder="Description" class="form-control mb-2" required></textarea>
                     <input type="text" name="reponse" placeholder="Réponse" class="form-control mb-2" required>
                     <select name="niveau" class="form-control mb-2" required>
+                        <option value="" disabled selected>Choisir un niveau</option>
                         <option value="Facile">Facile</option>
                         <option value="Moyen">Moyen</option>
                         <option value="Difficile">Difficile</option>
+                    </select>
+                    <!-- Champ de sélection de catégorie -->
+                    <select name="categorieId" class="form-control mb-2" required>
+                        <option value="" disabled selected>Choisir une catégorie</option>
+                        <option th:each="categorie : ${categories}" 
+                                th:value="${categorie.id}" 
+                                th:text="${categorie.nom}"></option>
                     </select>
                     <button type="button" class="btn btn-primary" id="ajouterEnigmeButton">Ajouter Énigme</button>
                 </form>
@@ -85,6 +101,7 @@
                             <th>Titre</th>
                             <th>Description</th>
                             <th>Niveau</th>
+                            <th>Catégorie</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -93,9 +110,21 @@
                             <td th:text="${enigme.titre}"></td>
                             <td th:text="${enigme.description}"></td>
                             <td th:text="${enigme.niveau}"></td>
+                            <td th:text="${enigme.categorie != null ? enigme.categorie.nom : 'Sans Catégorie'}"></td>
                             <td>
-                                <button class="btn btn-warning btn-sm btn-edit" th:attr="data-id=${enigme.id}, data-type='enigme', data-titre=${enigme.titre}, data-description=${enigme.description}, data-reponse=${enigme.reponse}, data-niveau=${enigme.niveau}" data-bs-toggle="modal" data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-enigme" th:attr="data-id=${enigme.id}">Supprimer</button>
+                                <button class="btn btn-warning btn-sm btn-edit" 
+                                        th:attr="data-id=${enigme.id}, 
+                                                data-type='enigme', 
+                                                data-titre=${enigme.titre}, 
+                                                data-description=${enigme.description}, 
+                                                data-reponse=${enigme.reponse}, 
+                                                data-niveau=${enigme.niveau},
+                                                data-categorieId=${enigme.categorie != null ? enigme.categorie.id : ''},
+                                                data-categorieName=${enigme.categorie != null ? enigme.categorie.nom : ''}" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editModal">Modifier</button>
+                                <button class="btn btn-danger btn-sm btn-delete-enigme" 
+                                        th:attr="data-id=${enigme.id}">Supprimer</button>
                             </td>
                         </tr>
                     </tbody>
@@ -120,8 +149,14 @@
                         <tr th:each="categorie : ${categories}">
                             <td th:text="${categorie.nom}"></td>
                             <td>
-                                <button class="btn btn-warning btn-sm btn-edit" th:attr="data-id=${categorie.id}, data-type='categorie', data-nom=${categorie.nom}" data-bs-toggle="modal" data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-categorie" th:attr="data-id=${categorie.id}">Supprimer</button>
+                                <button class="btn btn-warning btn-sm btn-edit" 
+                                        th:attr="data-id=${categorie.id}, 
+                                                data-type='categorie', 
+                                                data-nom=${categorie.nom}" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editModal">Modifier</button>
+                                <button class="btn btn-danger btn-sm btn-delete-categorie" 
+                                        th:attr="data-id=${categorie.id}">Supprimer</button>
                             </td>
                         </tr>
                     </tbody>
@@ -146,8 +181,15 @@
                             <td th:text="${statistique.score}"></td>
                             <td th:text="${statistique.temps}"></td>
                             <td>
-                                <button class="btn btn-warning btn-sm btn-edit" th:attr="data-id=${statistique.id}, data-type='statistique', data-score=${statistique.score}, data-temps=${statistique.temps}" data-bs-toggle="modal" data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-statistique" th:attr="data-id=${statistique.id}">Supprimer</button>
+                                <button class="btn btn-warning btn-sm btn-edit" 
+                                        th:attr="data-id=${statistique.id}, 
+                                                data-type='statistique', 
+                                                data-score=${statistique.score}, 
+                                                data-temps=${statistique.temps}" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editModal">Modifier</button>
+                                <button class="btn btn-danger btn-sm btn-delete-statistique" 
+                                        th:attr="data-id=${statistique.id}">Supprimer</button>
                             </td>
                         </tr>
                     </tbody>
@@ -162,7 +204,9 @@
                     <input type="number" name="cout" placeholder="Coût" class="form-control mb-2" required>
                     <select name="enigmeId" class="form-control mb-2" required>
                         <option value="" disabled selected>Choisir une énigme</option>
-                        <option th:each="enigme : ${enigmes}" th:value="${enigme.id}" th:text="${enigme.titre}"></option>
+                        <option th:each="enigme : ${enigmes}" 
+                                th:value="${enigme.id}" 
+                                th:text="${enigme.titre}"></option>
                     </select>
                     <button type="button" class="btn btn-primary" id="ajouterIndiceButton">Ajouter Indice</button>
                 </form>
@@ -181,8 +225,17 @@
                             <td th:text="${indice.cout}"></td>
                             <td th:text="${indice.enigme.titre}"></td>
                             <td>
-                                <button class="btn btn-warning btn-sm btn-edit" th:attr="data-id=${indice.id}, data-type='indice', data-description=${indice.description}, data-cout=${indice.cout}, data-enigmeId=${indice.enigme.id}" data-bs-toggle="modal" data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-indice" th:attr="data-id=${indice.id}">Supprimer</button>
+                                <button class="btn btn-warning btn-sm btn-edit" 
+                                        th:attr="data-id=${indice.id}, 
+                                                data-type='indice', 
+                                                data-description=${indice.description}, 
+                                                data-cout=${indice.cout}, 
+                                                data-enigmeId=${indice.enigme.id},
+                                                data-enigmeTitre=${indice.enigme.titre}" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editModal">Modifier</button>
+                                <button class="btn btn-danger btn-sm btn-delete-indice" 
+                                        th:attr="data-id=${indice.id}">Supprimer</button>
                             </td>
                         </tr>
                     </tbody>
@@ -191,7 +244,7 @@
         </div>
     </div>
 
-   <!-- Modal pour Modifier -->
+    <!-- Modal pour Modifier -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -214,8 +267,8 @@
         </div>
     </div>
     
+    <!-- Scripts Bootstrap et admin.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/admin.js"></script>
-
 </body>
 </html>
