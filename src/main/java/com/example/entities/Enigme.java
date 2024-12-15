@@ -36,4 +36,6 @@ public class Enigme {
     @ManyToMany
     @JoinTable(name = "Enigme_Categorie", joinColumns = @JoinColumn(name = "enigme_id"), inverseJoinColumns = @JoinColumn(name = "categorie_id"))
     private List<Categorie> categories;
+
+   
 }

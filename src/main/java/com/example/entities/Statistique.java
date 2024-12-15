@@ -17,7 +17,7 @@ public class Statistique {
 
     @ManyToOne
     @JoinColumn(name = "enigme_id", nullable = true)
-    @JsonBackReference // Utilisé pour éviter la boucle infinie lors de la sérialisation avec Enigme
+    @JsonBackReference 
     private Enigme enigme;
 
     @Column(nullable = false)
@@ -41,7 +41,7 @@ public class Statistique {
     @Column(nullable = false)
     private Integer enigmesResoluesCrypto = 0;
 
-    // Méthode pour ajouter une énigme résolue
+
     public void ajouterEnigmeResolue(String categorie, boolean avecIndice, boolean avecAchatReponse, int points) {
         enigmesResolues++;
         if (avecIndice) {
@@ -68,5 +68,4 @@ public class Statistique {
         }
     }
 
-    // Getters and Setters (générés automatiquement avec Lombok)
 }
