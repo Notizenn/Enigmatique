@@ -80,18 +80,35 @@ let currentHintIndex = 0;
 
 const puzzleList = document.getElementById('puzzleList');
 document.getElementById('userFunds').textContent = `Sous: ${user.sous} €`;
+
+
 enigmas.forEach(enigma => {
+    const isNextEnigma = enigmas.findIndex(e => e.faite === "non") === enigmas.indexOf(enigma);
     const icon = enigma.faite === "oui"
-        ? "img/checkmark.png"       
+        ? "img/checkmark.png"
         : enigma.faite === "passé"
-            ? "img/cross.png"       
-            : "img/secured-lock.png"; 
+            ? "img/cross.png"
+            : isNextEnigma
+                ? "img/circulaire.png"
+                : "img/secured-lock.png";
 
     const size = enigma.faite === "oui" ? "30" : "25";
 
     const listItem = document.createElement('div');
     listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-    listItem.onclick = () => handleEnigmaClick(enigma.id);
+
+    listItem.onclick = () => {
+        if (icon === "img/secured-lock.png" && !isNextEnigma) {
+            const modalBody = document.getElementById("messageModalBody");
+            modalBody.textContent = "Vous devez terminer les énigmes précédentes avant de débloquer celle-ci.";
+
+            const messageModal = new bootstrap.Modal(document.getElementById("messageModal"));
+            messageModal.show();
+        } else {
+            handleEnigmaClick(enigma.id);
+        }
+    };
+
     listItem.innerHTML = `
         <span>${enigma.titre}</span>
         <span class="badge">
@@ -107,12 +124,7 @@ function handleEnigmaClick(enigmaId) {
     const enigma = enigmas.find(e => e.id === enigmaId);
     if (enigma.faite === "oui" || enigma.faite === "non") {
         showEnigma(enigma);
-    } else {
-        const modalBody = document.getElementById("messageModalBody");
-        modalBody.textContent = "Vous devez terminer les énigmes précédentes avant de débloquer celle-ci.";
-
-        const messageModal = new bootstrap.Modal(document.getElementById("messageModal"));
-        messageModal.show();
+        updateStats(enigma, "enigmesResolues");
     }
 }
 
@@ -121,12 +133,7 @@ function showEnigma(enigma) {
     currentHintIndex = 0;
     const hintButton = document.querySelector("button[onclick='acheterIndice()']");
     hintButton.disabled = currentHintIndex >= enigma.indices.length;
-    
-    hintButton.disabled = currentHintIndex >= enigma.indices.length;
-    
-    hintButton.disabled = false;
-    currentEnigma = enigma;
-    currentHintIndex = 0;
+
     document.getElementById("enigmaModalLabel").textContent = enigma.titre;
     document.getElementById("enigmaQuestion").textContent = enigma.question;
     document.getElementById("enigmaHint").textContent = "";
@@ -156,6 +163,7 @@ function checkAnswer() {
         feedbackMessage.textContent = "Réponse correcte !";
         feedbackMessage.style.color = "green";
         currentEnigma.faite = "oui";
+        updateStats(currentEnigma, "enigmesResolues");
 
         setTimeout(() => {
             feedbackMessage.textContent = "";
@@ -182,21 +190,35 @@ function skipEnigma() {
         updateFundsDisplay();
     }, 1000);
 }
-
 function updatePuzzleList() {
     puzzleList.innerHTML = ""; 
     enigmas.forEach(enigma => {
+        const isNextEnigma = enigmas.findIndex(e => e.faite === "non") === enigmas.indexOf(enigma);
         const icon = enigma.faite === "oui" 
             ? "img/checkmark.png" 
             : enigma.faite === "passé" 
                 ? "img/croix.png" 
-                : "img/secured-lock.png";
+                : isNextEnigma
+                    ? "img/circulaire.png"
+                    : "img/secured-lock.png";
 
         const size = enigma.faite === "oui" ? "30" : "25";
 
         const listItem = document.createElement('div');
         listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-        listItem.onclick = () => handleEnigmaClick(enigma.id);
+
+        listItem.onclick = () => {
+            if (icon === "img/secured-lock.png" && !isNextEnigma) {
+                const modalBody = document.getElementById("messageModalBody");
+                modalBody.textContent = "Vous devez terminer les énigmes précédentes avant de débloquer celle-ci.";
+
+                const messageModal = new bootstrap.Modal(document.getElementById("messageModal"));
+                messageModal.show();
+            } else {
+                handleEnigmaClick(enigma.id);
+            }
+        };
+
         listItem.innerHTML = `
             <span>${enigma.titre}</span>
             <span class="badge">
@@ -209,30 +231,30 @@ function updatePuzzleList() {
     });
 }
 
+
 function acheterIndice() {
     const hintButton = document.querySelector("button[onclick='acheterIndice()']");
-    
-    
+
     if (currentHintIndex < currentEnigma.indices.length) {
-        const hintButton = document.querySelector("button[onclick='acheterIndice()']");
-        hintButton.disabled = false;
         const indice = currentEnigma.indices[currentHintIndex];
         if (user.sous >= indice.cout) {
             user.sous -= indice.cout;
             document.getElementById("enigmaHint").style.display = "block";
             document.getElementById("enigmaHint").textContent = indice.description;
             currentHintIndex++;
-        if (currentHintIndex >= currentEnigma.indices.length) {
-            hintButton.disabled = true;
+            updateStats(currentEnigma, "indicesUtilises");
+
+            if (currentHintIndex >= currentEnigma.indices.length) {
                 hintButton.disabled = true;
             }
+
             updateFundsDisplay();
         } else {
-            document.getElementById("feedbackMessage").textContent = "Fonds insuffisants pour acheter cet indice.";
-document.getElementById("feedbackMessage").style.color = "red";
+            const feedbackMessage = document.getElementById("feedbackMessage");
+            feedbackMessage.textContent = "Fonds insuffisants pour acheter cet indice.";
+            feedbackMessage.style.color = "red";
         }
     } else {
-        
         hintButton.disabled = true;
     }
 }
@@ -241,10 +263,11 @@ function acheterResolution() {
     if (user.sous >= currentEnigma.resolution.cout) {
         user.sous -= currentEnigma.resolution.cout;
 
-            document.getElementById("feedbackMessage").innerHTML = `Réponse : ${currentEnigma.reponse}<br>Pourquoi : ${currentEnigma.resolution.description}`;
-document.getElementById("feedbackMessage").style.color = "green";
+        document.getElementById("feedbackMessage").innerHTML = `Réponse : ${currentEnigma.reponse}<br>Pourquoi : ${currentEnigma.resolution.description}`;
+        document.getElementById("feedbackMessage").style.color = "green";
 
-        // Attendre 5 secondes avant de passer à l'énigme suivante
+        updateStats(currentEnigma, "achatResolution");
+
         setTimeout(() => {
             currentEnigma.faite = "oui";
             updatePuzzleList();
@@ -253,7 +276,7 @@ document.getElementById("feedbackMessage").style.color = "green";
         }, 5000);
     } else {
         document.getElementById("feedbackMessage").textContent = "Fonds insuffisants pour acheter la résolution.";
-document.getElementById("feedbackMessage").style.color = "red";
+        document.getElementById("feedbackMessage").style.color = "red";
     }
 }
 
@@ -274,4 +297,35 @@ function playNextEnigma() {
 
 function updateFundsDisplay() {
     document.getElementById('userFunds').textContent = `Sous: ${user.sous} €`;
+}
+
+
+function updateStats(enigma, actionType) {
+    const userStats = statistiques.find(stat => stat.utilisateur.id === user.id);
+    if (!userStats) return;
+
+    switch (actionType) {
+        case "enigmesResolues":
+            userStats.enigmesResolues++;
+            userStats.score += 100;
+            const category = enigma.categories[0].nom;
+            if (category === "Maths") userStats.enigmesResoluesMaths++;
+            if (category === "Logique") userStats.enigmesResoluesLogique++;
+            if (category === "Crypto") userStats.enigmesResoluesCrypto++;
+            break;
+
+        case "indicesUtilises":
+            userStats.indicesUtilises++;
+            userStats.score -= 5;
+            break;
+
+        case "achatResolution":
+            userStats.enigmesAvecAchatReponse++;
+            userStats.score -= 50;
+            break;
+
+        default:
+            console.error("Type d'action inconnu :", actionType);
+    }
+    console.log("Statistiques mises à jour :", userStats);
 }
