@@ -31,14 +31,14 @@ public class StatistiqueController {
     // GET - Obtenir les statistiques globales pour un utilisateur
     @GetMapping("/utilisateur/{utilisateurId}")
     public ResponseEntity<Statistique> obtenirStatistiquesGlobales(@PathVariable Long utilisateurId) {
-        Optional<Statistique> statistique = statistiqueRepository.findByUtilisateurId(utilisateurId);
-        return statistique.map(ResponseEntity::ok)
-                          .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return statistiqueRepository.findByUtilisateurId(utilisateurId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // POST - Ajouter ou mettre à jour les statistiques pour un utilisateur
     @PostMapping
-    public ResponseEntity<Statistique> ajouterStatistique(
+    public ResponseEntity<Statistique> ajouterOuMettreAJourStatistique(
             @RequestParam Long utilisateurId,
             @RequestParam String categorie,
             @RequestParam boolean avecIndice,
@@ -64,7 +64,7 @@ public class StatistiqueController {
         try {
             statistique.ajouterEnigmeResolue(categorie, avecIndice, avecAchatReponse, points);
             statistiqueRepository.save(statistique);
-            return new ResponseEntity<>(statistique, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(statistique);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
@@ -77,8 +77,7 @@ public class StatistiqueController {
         if (statistique.isPresent()) {
             statistiqueRepository.delete(statistique.get());
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

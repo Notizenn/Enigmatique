@@ -31,4 +31,6 @@ public class Utilisateur {
     @Column
     private boolean admin;
 
+    
+
 }

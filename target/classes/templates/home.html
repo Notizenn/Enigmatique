@@ -82,7 +82,9 @@
     <div class="container">
       <h1>Bienvenue sur Énigmatique</h1>
       <p>Plongez dans l'univers des puzzles, énigmes, et défis cérébraux !</p>
-      <a href="#" class="btn btn-dark mt-3">Découvrir</a>
+      <a th:if="${username}" href="/game" class="btn btn-dark mt-3">Découvrir</a>
+      <a th:unless="${username}" href="/login" class="btn btn-dark mt-3">Découvrir</a>
+
     </div>
   </section>
 
