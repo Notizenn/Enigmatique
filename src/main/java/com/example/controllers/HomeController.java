@@ -12,17 +12,23 @@ public class HomeController {
    public HomeController() {
    }
 
-    @GetMapping("/home")
-    public String homePage(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.isAuthenticated() &&
-            !"anonymousUser".equals(authentication.getPrincipal())) {
-            model.addAttribute("username", authentication.getName());
-        }
-        return "home"; 
-    }
-
+   @GetMapping("/home")
+   public String homePage(Model model) {
+       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+   
+       if (authentication != null && authentication.isAuthenticated() &&
+           !"anonymousUser".equals(authentication.getPrincipal())) {
+           model.addAttribute("username", authentication.getName());
+   
+           // Vérifiez si l'utilisateur a le rôle ADMIN
+           boolean isAdmin = authentication.getAuthorities().stream()
+                                            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+           model.addAttribute("isAdmin", isAdmin);
+       }
+   
+       return "home"; 
+   }
+   
 
     @GetMapping("/admin-home")
     public String showAdminPage() {
