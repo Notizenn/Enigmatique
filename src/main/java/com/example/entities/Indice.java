@@ -14,8 +14,7 @@ public class Indice {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false)
-    private Integer cout;
+  
 
     @ManyToOne
     @JoinColumn(name = "enigme_id", nullable = false)

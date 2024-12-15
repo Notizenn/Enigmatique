@@ -11,11 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -24,9 +20,6 @@ public class AdminController {
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
-
-    @Autowired
-    private StatistiqueRepository statistiqueRepository;
 
     @Autowired
     private IndiceRepository indiceRepository;
@@ -41,73 +34,59 @@ public class AdminController {
     @GetMapping
     public String adminPage(Model model) {
         model.addAttribute("utilisateurs", utilisateurRepository.findAll());
-        model.addAttribute("statistiques", statistiqueRepository.findAll());
         model.addAttribute("indices", indiceRepository.findAll());
         model.addAttribute("enigmes", enigmeRepository.findAll());
         model.addAttribute("categories", categorieRepository.findAll());
-        return "admin"; // Assurez-vous que le fichier est nommé admin.html et est dans le bon dossier
+        return "admin";
     }
 
     @GetMapping("/data")
-@ResponseBody
-public ResponseEntity<Map<String, Object>> getAllData() {
-    try {
-        Map<String, Object> data = new HashMap<>();
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAllData() {
+        try {
+            Map<String, Object> data = new HashMap<>();
 
-        // Remplir la carte des données avec des utilisateurs sans mot de passe et seulement les données nécessaires
-        List<Map<String, Object>> utilisateurs = utilisateurRepository.findAll().stream().map(utilisateur -> {
-            Map<String, Object> utilisateurData = new HashMap<>();
-            utilisateurData.put("id", utilisateur.getId());
-            utilisateurData.put("nom", utilisateur.getNom());
-            utilisateurData.put("email", utilisateur.getEmail());
-            utilisateurData.put("sous", utilisateur.getSous());
-            utilisateurData.put("admin", utilisateur.isAdmin());
-            return utilisateurData;
-        }).collect(Collectors.toList());
+            // Utilisateurs sans mot de passe
+            List<Map<String, Object>> utilisateurs = utilisateurRepository.findAll().stream().map(utilisateur -> {
+                Map<String, Object> utilisateurData = new HashMap<>();
+                utilisateurData.put("id", utilisateur.getId());
+                utilisateurData.put("nom", utilisateur.getNom());
+                utilisateurData.put("email", utilisateur.getEmail());
+                utilisateurData.put("admin", utilisateur.isAdmin());
+                return utilisateurData;
+            }).collect(Collectors.toList());
 
-        List<Map<String, Object>> indices = indiceRepository.findAll().stream().map(indice -> {
-            Map<String, Object> indiceData = new HashMap<>();
-            indiceData.put("id", indice.getId());
-            indiceData.put("description", indice.getDescription());
-            indiceData.put("cout", indice.getCout());
-            indiceData.put("enigmeId", indice.getEnigme().getId());
-            indiceData.put("enigmeTitre", indice.getEnigme().getTitre());
-            return indiceData;
-        }).collect(Collectors.toList());
+            List<Map<String, Object>> indices = indiceRepository.findAll().stream().map(indice -> {
+                Map<String, Object> indiceData = new HashMap<>();
+                indiceData.put("id", indice.getId());
+                indiceData.put("description", indice.getDescription());
+                indiceData.put("enigmeId", indice.getEnigme().getId());
+                indiceData.put("enigmeTitre", indice.getEnigme().getTitre());
+                return indiceData;
+            }).collect(Collectors.toList());
 
-        data.put("utilisateurs", utilisateurs);
-        data.put("enigmes", enigmeRepository.findAll());
-        data.put("categories", categorieRepository.findAll());
-        data.put("indices", indices);
-        data.put("statistiques", statistiqueRepository.findAll());
+            data.put("utilisateurs", utilisateurs);
+            data.put("enigmes", enigmeRepository.findAll());
+            data.put("categories", categorieRepository.findAll());
+            data.put("indices", indices);
 
-        return ResponseEntity.ok(data);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
-}
-
-
 
     @PostMapping("/utilisateurs/add")
     public ResponseEntity<?> addUtilisateur(@RequestBody Utilisateur utilisateur) {
         try {
-            // Vérification de l'unicité de l'email
             if (utilisateurRepository.findByEmail(utilisateur.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body("L'email existe déjà. Veuillez en choisir un autre.");
+                return ResponseEntity.badRequest().body("L'email existe déjà.");
             }
 
-            // Encode le mot de passe avant de sauvegarder
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
 
-            // Définir une valeur par défaut pour 'sous' si nécessaire
-            if (utilisateur.getSous() == 0) {
-                utilisateur.setSous(100); // Par exemple, définir une valeur par défaut
-            }
-
-            // Sauvegarder l'utilisateur
             utilisateurRepository.save(utilisateur);
             return ResponseEntity.ok(utilisateur);
         } catch (Exception e) {
@@ -155,7 +134,6 @@ public ResponseEntity<Map<String, Object>> getAllData() {
     public ResponseEntity<?> addIndice(@RequestBody Map<String, Object> requestData) {
         try {
             String description = (String) requestData.get("description");
-            int cout = (Integer) requestData.get("cout");
             Long enigmeId = Long.parseLong(requestData.get("enigmeId").toString());
 
             Optional<Enigme> enigmeOptional = enigmeRepository.findById(enigmeId);
@@ -163,7 +141,6 @@ public ResponseEntity<Map<String, Object>> getAllData() {
                 Enigme enigme = enigmeOptional.get();
                 Indice indice = new Indice();
                 indice.setDescription(description);
-                indice.setCout(cout);
                 indice.setEnigme(enigme);
                 indiceRepository.save(indice);
                 return ResponseEntity.ok(indice);
@@ -176,7 +153,6 @@ public ResponseEntity<Map<String, Object>> getAllData() {
         }
     }
 
-
     @PutMapping("/indices/update/{id}")
     @ResponseBody
     public ResponseEntity<Indice> updateIndice(@PathVariable Long id, @RequestBody Indice indiceDetails) {
@@ -185,7 +161,6 @@ public ResponseEntity<Map<String, Object>> getAllData() {
             if (indiceOptional.isPresent()) {
                 Indice indice = indiceOptional.get();
                 indice.setDescription(indiceDetails.getDescription());
-                indice.setCout(indiceDetails.getCout());
                 indiceRepository.save(indice);
                 return ResponseEntity.ok(indice);
             }
@@ -211,7 +186,6 @@ public ResponseEntity<Map<String, Object>> getAllData() {
         }
     }
 
-    // *** Gestion des Énigmes ***
     @PostMapping("/enigmes/add")
     public ResponseEntity<?> addEnigme(@RequestBody Enigme enigme, @RequestParam(value = "categoriesIds", required = false) List<Long> categoriesIds) {
         try {
@@ -269,7 +243,6 @@ public ResponseEntity<Map<String, Object>> getAllData() {
         }
     }
 
-    // *** Gestion des Catégories ***
     @PostMapping("/categories/add")
     public ResponseEntity<?> addCategorie(@RequestBody Categorie categorie) {
         try {

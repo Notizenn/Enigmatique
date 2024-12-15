@@ -21,11 +21,8 @@ public class Utilisateur {
     @Column(nullable = false)
     private String motDePasse;
 
-    @Column(nullable = false)
-    private int sous;
 
-    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Statistique> statistiques;
+
 
 
     @Column

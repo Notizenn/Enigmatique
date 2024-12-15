@@ -1,19 +1,23 @@
-let user = {
-    id: 1,
-    nom: "Alice",
-    email: "alice@example.com",
-    motDePasse: "password123",
-    sous: 1000,
-    admin: false
-};
-
+let user = null;
 let enigmas = [];    
 let currentEnigma = null;
 let currentHintIndex = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Récupérer toutes les énigmes depuis l'API Spring Boot
-    fetch('/api/enigmes')
+    // Récupérer l'utilisateur actuellement connecté (facultatif si vous n'en avez plus besoin)
+    fetch('/api/utilisateurs/current')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Impossible de récupérer l'utilisateur connecté");
+            }
+            return response.json();
+        })
+        .then(utilisateur => {
+            user = utilisateur;
+
+            // Récupérer toutes les énigmes
+            return fetch('/api/enigmes');
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur lors de la récupération des énigmes');
@@ -21,23 +25,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            // Adapter la structure si nécessaire en fonction de ce que renvoie votre API.
-            // On suppose ici que chaque énigme a un champ 'description', 'titre', etc.
-            enigmas = data.map(e => {
-                return {
-                    ...e,
-                    question: e.description, 
-                    faite: "non" // vous pouvez gérer cet état autrement, p.ex. avec une propriété de l'entité si dispo.
-                };
+            enigmas = data.map(e => ({
+                ...e,
+                question: e.description,
+                faite: "non"
+            }));
+
+            // Récupérer les énigmes résolues pour cet utilisateur
+            return fetch(`/api/resolutions/user/${user.id}`);
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des énigmes résolues');
+            }
+            return response.json();
+        })
+        .then(enigmesResoluesIds => {
+            enigmas = enigmas.map(enigma => {
+                if (enigmesResoluesIds.includes(enigma.id)) {
+                    return { ...enigma, faite: "oui" };
+                }
+                return enigma;
             });
 
-            document.getElementById('userFunds').textContent = `Sous: ${user.sous} €`;
             updatePuzzleList();
         })
         .catch(error => {
             console.error(error);
-            // Gérer l'erreur, par exemple afficher un message
-            // alert("Impossible de récupérer les énigmes : " + error.message);
         });
 });
 
@@ -84,7 +98,7 @@ function handleEnigmaClick(enigmaId) {
 function showEnigma(enigma) {
     currentEnigma = enigma;
     currentHintIndex = 0;
-    const hintButton = document.querySelector("button[onclick='acheterIndice()']");
+    const hintButton = document.querySelector("button[onclick='afficherIndice()']");
     if (hintButton) hintButton.disabled = false;
 
     document.getElementById("enigmaModalLabel").textContent = enigma.titre;
@@ -117,12 +131,35 @@ function checkAnswer() {
         feedbackMessage.style.color = "green";
         currentEnigma.faite = "oui";
 
-        setTimeout(() => {
-            feedbackMessage.textContent = "";
-            updatePuzzleList();
-            playNextEnigma();
-            updateFundsDisplay();
-        }, 1000);
+        // Appel au backend pour sauvegarder la résolution (pas de coût)
+        fetch('/api/resolutions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                'utilisateurId': user.id,
+                'enigmeId': currentEnigma.id
+            })
+        })
+        .then(res => {
+            if (!res.ok) {
+                console.error("Erreur lors de la sauvegarde de la résolution, statut:", res.status);
+            }
+            setTimeout(() => {
+                feedbackMessage.textContent = "";
+                updatePuzzleList();
+                playNextEnigma();
+            }, 1000);
+        })
+        .catch(error => {
+            console.error("Erreur réseau lors de la sauvegarde de la résolution:", error);
+            setTimeout(() => {
+                feedbackMessage.textContent = "";
+                updatePuzzleList();
+                playNextEnigma();
+            }, 1000);
+        });
     } else {
         feedbackMessage.textContent = "Réponse incorrecte.";
         feedbackMessage.style.color = "red";
@@ -139,60 +176,41 @@ function skipEnigma() {
         feedbackMessage.textContent = "";
         updatePuzzleList();
         playNextEnigma();
-        updateFundsDisplay();
     }, 1000);
 }
 
-function acheterIndice() {
+function afficherIndice() {
     if (!currentEnigma.indices || currentHintIndex >= currentEnigma.indices.length) {
-        const hintButton = document.querySelector("button[onclick='acheterIndice()']");
+        const hintButton = document.querySelector("button[onclick='afficherIndice()']");
         if (hintButton) hintButton.disabled = true;
         return;
     }
 
     const indice = currentEnigma.indices[currentHintIndex];
-    const feedbackMessage = document.getElementById("feedbackMessage");
 
-    if (user.sous >= indice.cout) {
-        user.sous -= indice.cout;
-        document.getElementById("enigmaHint").style.display = "block";
-        document.getElementById("enigmaHint").textContent = indice.description;
-        currentHintIndex++;
+    // Afficher l'indice directement
+    document.getElementById("enigmaHint").style.display = "block";
+    document.getElementById("enigmaHint").textContent = indice.description;
+    currentHintIndex++;
 
-        const hintButton = document.querySelector("button[onclick='acheterIndice()']");
-        if (currentHintIndex >= currentEnigma.indices.length && hintButton) {
-            hintButton.disabled = true;
-        }
-        updateFundsDisplay();
-    } else {
-        feedbackMessage.textContent = "Fonds insuffisants pour acheter cet indice.";
-        feedbackMessage.style.color = "red";
+    const hintButton = document.querySelector("button[onclick='afficherIndice()']");
+    if (currentHintIndex >= currentEnigma.indices.length && hintButton) {
+        hintButton.disabled = true;
     }
 }
 
-function acheterResolution() {
-    if (!currentEnigma.resolution) {
-        console.error("L'énigme ne fournit pas de solution complète.");
-        return;
-    }
-
+function afficherResolution() {
+    // Afficher directement la résolution (réponse + pourquoi)
     const feedbackMessage = document.getElementById("feedbackMessage");
+    feedbackMessage.innerHTML = `Réponse : ${currentEnigma.reponse}<br>` + 
+                                "Pourquoi : L'explication de la résolution de l'énigme ici";
+    feedbackMessage.style.color = "green";
 
-    if (user.sous >= currentEnigma.resolution.cout) {
-        user.sous -= currentEnigma.resolution.cout;
-        feedbackMessage.innerHTML = `Réponse : ${currentEnigma.reponse}<br>Pourquoi : ${currentEnigma.resolution.description}`;
-        feedbackMessage.style.color = "green";
-
-        setTimeout(() => {
-            currentEnigma.faite = "oui";
-            updatePuzzleList();
-            playNextEnigma();
-            updateFundsDisplay();
-        }, 5000);
-    } else {
-        feedbackMessage.textContent = "Fonds insuffisants pour acheter la résolution.";
-        feedbackMessage.style.color = "red";
-    }
+    setTimeout(() => {
+        currentEnigma.faite = "oui";
+        updatePuzzleList();
+        playNextEnigma();
+    }, 5000);
 }
 
 function playNextEnigma() {
@@ -208,8 +226,4 @@ function playNextEnigma() {
             alert("Il ne reste que des énigmes passées !");
         }
     }
-}
-
-function updateFundsDisplay() {
-    document.getElementById('userFunds').textContent = `Sous: ${user.sous} €`;
 }

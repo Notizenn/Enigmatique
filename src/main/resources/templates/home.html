@@ -82,8 +82,8 @@
     <div class="container">
       <h1>Bienvenue sur Énigmatique</h1>
       <p>Plongez dans l'univers des puzzles, énigmes, et défis cérébraux !</p>
-      <a th:if="${username}" href="/game" class="btn btn-dark mt-3">Découvrir</a>
-      <a th:unless="${username}" href="/login" class="btn btn-dark mt-3">Découvrir</a>
+      <a th:if="${username}" href="/game" class="btn btn-dark mt-3">Jouer</a>
+      <a th:unless="${username}" href="/login" class="btn btn-dark mt-3">Jouer</a>
 
     </div>
   </section>
@@ -101,41 +101,6 @@
       </p>
       
       </div>
-  </section>
-
-  <!-- Section des catégories -->
-  <section class="categories-section py-5">
-    <div class="container">
-      <div class="row text-center">
-        <div class="col-md-4 mb-4">
-          <div class="card border-0 shadow">
-            <div class="card-body">
-              <h3 class="card-title">Puzzles</h3>
-              <p class="card-text">Explorez nos puzzles captivants, parfaits pour les amateurs de casse-têtes.</p>
-              <a href="login" class="btn btn-outline-dark">En savoir plus</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4">
-          <div class="card border-0 shadow">
-            <div class="card-body">
-              <h3 class="card-title">Énigmes</h3>
-              <p class="card-text">Des énigmes stimulantes pour tester votre esprit logique.</p>
-              <a href="login" class="btn btn-outline-dark">En savoir plus</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4">
-          <div class="card border-0 shadow">
-            <div class="card-body">
-              <h3 class="card-title">Défis</h3>
-              <p class="card-text">Des défis variés pour mettre à l'épreuve vos compétences analytiques.</p>
-              <a href="login" class="btn btn-outline-dark">En savoir plus</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- Section des articles récents -->

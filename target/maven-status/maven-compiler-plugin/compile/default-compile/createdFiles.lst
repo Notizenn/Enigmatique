@@ -1,11 +1,13 @@
+com/example/controllers/ResolutionController.class
 com/example/controllers/HomeController.class
 com/example/controllers/CategorieController.class
 com/example/controllers/EnigmeController.class
 com/example/entities/Enigme.class
 com/example/controllers/RedirectController.class
 com/example/entities/Indice.class
-com/example/repository/StatistiqueRepository.class
 com/example/repository/UtilisateurRepository.class
+com/example/entities/Resolution.class
+com/example/repository/ResolutionRepository.class
 com/example/repository/EnigmeRepository.class
 com/example/repository/CategorieRepository.class
 com/example/repository/IndiceRepository.class
@@ -14,8 +16,6 @@ com/example/security/SecurityConfig.class
 com/example/controllers/RegisterController.class
 com/example/controllers/LoginController.class
 com/example/entities/Utilisateur.class
-com/example/entities/Statistique.class
-com/example/controllers/StatistiqueController.class
 com/example/controllers/AdminController.class
 com/example/controllers/IndiceController.class
 com/example/ProjetJeeApplication.class

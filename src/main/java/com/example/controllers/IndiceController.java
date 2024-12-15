@@ -46,7 +46,7 @@ public class IndiceController {
         if (indiceExistant.isPresent()) {
             Indice indice = indiceExistant.get();
             indice.setDescription(detailsIndice.getDescription());
-            indice.setCout(detailsIndice.getCout());
+           
             indice.setEnigme(detailsIndice.getEnigme());
             Indice indiceMisAJour = indiceRepository.save(indice);
             return ResponseEntity.ok(indiceMisAJour);
@@ -66,4 +66,7 @@ public class IndiceController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+
+    
 }

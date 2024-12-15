@@ -29,9 +29,6 @@ public class Enigme {
     @JsonManagedReference // Gérer la relation parent avec Indice
     private List<Indice> indices;
 
-    @OneToMany(mappedBy = "enigme", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Gérer la relation parent avec Statistique
-    private List<Statistique> statistiques;
 
     @ManyToMany
     @JoinTable(name = "Enigme_Categorie", joinColumns = @JoinColumn(name = "enigme_id"), inverseJoinColumns = @JoinColumn(name = "categorie_id"))

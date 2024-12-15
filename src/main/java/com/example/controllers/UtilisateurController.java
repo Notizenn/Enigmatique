@@ -5,6 +5,7 @@ import com.example.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,10 +28,7 @@ public class UtilisateurController {
         // Encoder le mot de passe avant de l'enregistrer
         utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
 
-        // Si le champ "sous" n'est pas défini dans la requête, le définir à une valeur par défaut (ex. 0)
-        if (utilisateur.getSous() == 0) {
-            utilisateur.setSous(0); // Valeur par défaut
-        }
+       
 
         Utilisateur nouvelUtilisateur = utilisateurRepository.save(utilisateur);
         return new ResponseEntity<>(nouvelUtilisateur, HttpStatus.CREATED);
@@ -65,8 +63,7 @@ public class UtilisateurController {
                 utilisateur.setMotDePasse(passwordEncoder.encode(detailsUtilisateur.getMotDePasse()));
             }
 
-            // Mettre à jour le champ "sous" si spécifié
-            utilisateur.setSous(detailsUtilisateur.getSous());
+            
 
             Utilisateur utilisateurMisAJour = utilisateurRepository.save(utilisateur);
             return ResponseEntity.ok(utilisateurMisAJour);
@@ -85,5 +82,24 @@ public class UtilisateurController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    // Nouvel endpoint pour obtenir l'utilisateur actuellement authentifié
+    @GetMapping("/current")
+    public ResponseEntity<Utilisateur> getCurrentUser(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Récupérer l'email (username) depuis l'authentification
+        String email = auth.getName();
+
+        // Rechercher l'utilisateur par email
+        Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findByEmail(email);
+        if (utilisateurOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(utilisateurOpt.get());
     }
 }
