@@ -33,7 +33,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'email : " + email));
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(utilisateur.getEmail()) // Utilisez `email` comme nom d'utilisateur
+                .username(utilisateur.getNom())
                 .password(utilisateur.getMotDePasse())
                 .roles(utilisateur.isAdmin() ? "ADMIN" : "USER")
                 .build();
