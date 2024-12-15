@@ -202,8 +202,8 @@ function afficherIndice() {
 function afficherResolution() {
     // Afficher directement la résolution (réponse + pourquoi)
     const feedbackMessage = document.getElementById("feedbackMessage");
-    feedbackMessage.innerHTML = `Réponse : ${currentEnigma.reponse}<br>` + 
-                                "Pourquoi : L'explication de la résolution de l'énigme ici";
+    feedbackMessage.innerHTML = `Réponse : ${currentEnigma.reponse}<br>` 
+                                ;
     feedbackMessage.style.color = "green";
 
     setTimeout(() => {
