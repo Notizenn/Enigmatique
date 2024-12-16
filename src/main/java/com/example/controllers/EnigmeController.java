@@ -61,7 +61,7 @@ public class EnigmeController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        }   
     }
 
     // *** Ajouter plusieurs énigmes en une seule requête ***
