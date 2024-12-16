@@ -18,7 +18,7 @@ public class Categorie {
     @Column(nullable = false)
     private String nom;
 
-    @ManyToMany(mappedBy = "categories")
-    @JsonIgnoreProperties("categories") 
+    @OneToMany(mappedBy = "categorie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("categorie")
     private List<Enigme> enigmes;
 }

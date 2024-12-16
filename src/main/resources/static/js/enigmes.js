@@ -4,7 +4,6 @@ let currentEnigma = null;
 let currentHintIndex = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Récupérer l'utilisateur actuellement connecté (facultatif si vous n'en avez plus besoin)
     fetch('/api/utilisateurs/current')
         .then(response => {
             if (!response.ok) {
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(utilisateur => {
             user = utilisateur;
-
             // Récupérer toutes les énigmes
             return fetch('/api/enigmes');
         })
@@ -25,13 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            enigmas = data.map(e => ({
+            // Filtrer par catégorie
+            const enigmesFiltrees = data.filter(e => e.categorie && e.categorie.nom === categorieCible);
+
+            enigmas = enigmesFiltrees.map(e => ({
                 ...e,
                 question: e.description,
                 faite: "non"
             }));
 
-            // Récupérer les énigmes résolues pour cet utilisateur
             return fetch(`/api/resolutions/user/${user.id}`);
         })
         .then(response => {
@@ -47,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return enigma;
             });
-
             updatePuzzleList();
         })
         .catch(error => {

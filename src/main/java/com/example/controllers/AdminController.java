@@ -1,7 +1,13 @@
 package com.example.controllers;
 
-import com.example.entities.*;
-import com.example.repository.*;
+import com.example.entities.Categorie;
+import com.example.entities.Enigme;
+import com.example.entities.Indice;
+import com.example.entities.Utilisateur;
+import com.example.repository.CategorieRepository;
+import com.example.repository.EnigmeRepository;
+import com.example.repository.IndiceRepository;
+import com.example.repository.UtilisateurRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +36,7 @@ public class AdminController {
     @Autowired
     private CategorieRepository categorieRepository;
 
-    // *** Page d'administration générale ***
+    // Page d'administration générale
     @GetMapping
     public String adminPage(Model model) {
         model.addAttribute("utilisateurs", utilisateurRepository.findAll());
@@ -187,17 +193,27 @@ public class AdminController {
     }
 
     @PostMapping("/enigmes/add")
-    public ResponseEntity<?> addEnigme(@RequestBody Enigme enigme, @RequestParam(value = "categoriesIds", required = false) List<Long> categoriesIds) {
+    public ResponseEntity<?> addEnigme(@RequestBody Enigme enigme) {
         try {
+            // Si la liste d'indices est nulle, on la remplace par une liste vide
             if (enigme.getIndices() == null) {
                 enigme.setIndices(new ArrayList<>());
             }
-            if (categoriesIds != null && !categoriesIds.isEmpty()) {
-                List<Categorie> categories = categorieRepository.findAllById(categoriesIds);
-                enigme.setCategories(categories);
-            } else {
-                enigme.setCategories(new ArrayList<>());
+
+            // Vérifier que le niveau n'est pas vide
+            if (enigme.getNiveau() == null || enigme.getNiveau().isEmpty()) {
+                return ResponseEntity.badRequest().body("Le champ niveau est obligatoire.");
             }
+
+            // Vérifier et charger la catégorie si une catégorie est spécifiée
+            if (enigme.getCategorie() != null && enigme.getCategorie().getId() != null) {
+                Optional<Categorie> categorieOptional = categorieRepository.findById(enigme.getCategorie().getId());
+                if (categorieOptional.isEmpty()) {
+                    return ResponseEntity.badRequest().body("Catégorie non trouvée");
+                }
+                enigme.setCategorie(categorieOptional.get());
+            }
+
             enigmeRepository.save(enigme);
             return ResponseEntity.ok(enigme);
         } catch (Exception e) {
@@ -217,7 +233,21 @@ public class AdminController {
                 enigme.setDescription(enigmeDetails.getDescription());
                 enigme.setReponse(enigmeDetails.getReponse());
                 enigme.setNiveau(enigmeDetails.getNiveau());
-                enigme.setCategories(enigmeDetails.getCategories());
+
+                // Vérifier le niveau
+                if (enigme.getNiveau() == null || enigme.getNiveau().isEmpty()) {
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+
+                // Gérer la catégorie
+                if (enigmeDetails.getCategorie() != null && enigmeDetails.getCategorie().getId() != null) {
+                    Optional<Categorie> catOpt = categorieRepository.findById(enigmeDetails.getCategorie().getId());
+                    if (catOpt.isEmpty()) {
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    }
+                    enigme.setCategorie(catOpt.get());
+                }
+
                 enigmeRepository.save(enigme);
                 return ResponseEntity.ok(enigme);
             }
