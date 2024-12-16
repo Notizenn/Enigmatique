@@ -20,21 +20,21 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
-   
+        <!-- Si l'utilisateur est connecté -->
         <li class="nav-item" th:if="${username}">
           <div class="d-flex align-items-center">
             <span class="navbar-text text-dark me-3">
               Connecté en tant que <strong th:text="${username}">Utilisateur</strong>
             </span>
             <a class="btn btn-outline-dark me-2" href="/perform_logout">Se déconnecter</a>
-         
-            <a href="#" class="text-dark" data-bs-toggle="modal" data-bs-target="#userProfileModal">
+            <a href="#" class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#userProfileModal">
               <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
             </a>
+            <!-- Bouton Admin affiché uniquement si l'utilisateur est admin -->
+            <a th:if="${isAdmin}" class="btn btn-outline-dark" href="/admin">Admin</a>
           </div>
         </li>
-
-      
+        <!-- Si l'utilisateur n'est pas connecté -->
         <li class="nav-item" th:unless="${username}">
           <a class="btn btn-outline-dark" href="/login">Se connecter</a>
           <a class="btn btn-outline-dark ms-2" href="/register">S'inscrire</a>
@@ -45,134 +45,107 @@
 </nav>
 
 
-<div class="modal fade" id="userProfileModal" tabindex="-1" aria-labelledby="userProfileModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="userProfileModalLabel">Mon Profil</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="/update_user_info" method="post">
-          <div class="mb-3">
-            <label for="username" class="form-label">Nom d'utilisateur</label>
-            <input type="text" class="form-control" id="username" name="username" value="" th:value="${username}" required>
-          </div>
-          <div class="mb-3">
-            <label for="email" class="form-label">Adresse e-mail</label>
-            <input type="email" class="form-control" id="email" name="email" value="" th:value="${email}" required>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Mot de passe</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="Laissez vide si vous ne souhaitez pas changer">
-          </div>
-          <button type="submit" class="btn btn-dark">Mettre à jour</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Ajouter Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Section de bienvenue -->
-  <section class="hero-section text-center py-7">
-    <div class="container">
-      <h1>Bienvenue sur Énigmatique</h1>
-      <p>Plongez dans l'univers des puzzles, énigmes, et défis cérébraux !</p>
-      <a th:if="${username}" href="/game" class="btn btn-dark mt-3">Jouer</a>
-      <a th:unless="${username}" href="/login" class="btn btn-dark mt-3">Jouer</a>
+<!-- Section de bienvenue -->
+<section class="hero-section text-center py-7">
+  <div class="container">
+    <h1>Bienvenue sur Énigmatique</h1>
+    <p>Plongez dans l'univers des puzzles, énigmes, et défis cérébraux !</p>
+    <a th:if="${username}" href="/game" class="btn btn-dark mt-3">Jouer</a>
+    <a th:unless="${username}" href="/login" class="btn btn-dark mt-3">Jouer</a>
+  </div>
+</section>
 
-    </div>
-  </section>
+<!-- Section "À propos" -->
+<section class="about-section py-5 text-center">
+  <div class="container">
+    <h2>À propos de Énigmatique</h2>
+    <p>
+      Rejoignez <strong>Énigmatique</strong>, l’espace des passionnés de logique et de défis intellectuels !<br>
+      Que vous soyez amateur de puzzles ou expert en énigmes, plongez dans un univers de réflexion<br>
+      et testez vos compétences avec des casse-têtes stimulants.<br>
+      Échangez, progressez et découvrez le plaisir de relever chaque jour de nouveaux défis<br>
+      avec une communauté qui partage votre passion.
+    </p>
+  </div>
+</section>
 
-  <!-- Section "À propos" -->
-  <section class="about-section py-5 text-center">
-    <div class="container">
-      <h2>À propos de Énigmatique</h2>
-      <p>
-        Rejoignez <strong>Énigmatique</strong>, l’espace des passionnés de logique et de défis intellectuels !<br>
-        Que vous soyez amateur de puzzles ou expert en énigmes, plongez dans un univers de réflexion<br>
-        et testez vos compétences avec des casse-têtes stimulants.<br>
-        Échangez, progressez et découvrez le plaisir de relever chaque jour de nouveaux défis<br>
-        avec une communauté qui partage votre passion.
-      </p>
-      
-      </div>
-  </section>
-
-  <!-- Section des articles récents -->
-  <section class="articles-section py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">Articles récents</h2>
-      <div class="row">
-        <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="/img/brown-background.jpg" class="card-img-top" alt="Article 1">
-            <div class="card-body">
-              <h5 class="card-title">Comment résoudre les énigmes difficiles</h5>
-              <p class="card-text">Découvrez des techniques pour surmonter les casse-têtes les plus coriaces.</p>
-              <a href="article1" class="btn btn-outline-dark">Lire plus</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="/img/brown-background.jpg" class="card-img-top" alt="Article 2">
-            <div class="card-body">
-              <h5 class="card-title">Top 10 des énigmes pour débutants</h5>
-              <p class="card-text">Un guide pour les débutants avec des énigmes accessibles mais engageantes.</p>
-              <a href="article2" class="btn btn-outline-dark">Lire plus</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="/img/brown-background.jpg" class="card-img-top" alt="Article 3">
-            <div class="card-body">
-              <h5 class="card-title">Les bienfaits des énigmes pour le cerveau</h5>
-              <p class="card-text">Découvrez pourquoi résoudre des énigmes est bon pour la santé mentale.</p>
-              <a href="article3" class="btn btn-outline-dark">Lire plus</a>
-            </div>
+<!-- Section des articles récents -->
+<section class="articles-section py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Articles récents</h2>
+    <div class="row">
+      <!-- Article 1 -->
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <img src="/img/brown-background.jpg" class="card-img-top" alt="Article 1">
+          <div class="card-body">
+            <h5 class="card-title">Comment résoudre les énigmes difficiles</h5>
+            <p class="card-text">Découvrez des techniques pour surmonter les casse-têtes les plus coriaces.</p>
+            <a href="article1" class="btn btn-outline-dark">Lire plus</a>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Section avis des utilisateurs -->
-  <section class="testimonials-section py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">Ce que disent nos utilisateurs</h2>
-      <div class="row">
-        <div class="col-md-6 mb-4">
-          <blockquote class="blockquote">
-            <p class="mb-0">"Énigmatique est le meilleur site pour les amateurs de puzzles et d'énigmes. J'adore !"</p>
-            <footer class="blockquote-footer">Marie L.</footer>
-          </blockquote>
+      <!-- Article 2 -->
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <img src="/img/brown-background.jpg" class="card-img-top" alt="Article 2">
+          <div class="card-body">
+            <h5 class="card-title">Top 10 des énigmes pour débutants</h5>
+            <p class="card-text">Un guide pour les débutants avec des énigmes accessibles mais engageantes.</p>
+            <a href="article2" class="btn btn-outline-dark">Lire plus</a>
+          </div>
         </div>
-        <div class="col-md-6 mb-4">
-          <blockquote class="blockquote">
-            <p class="mb-0">"Les défis proposés sont vraiment stimulants, je recommande vivement ! J'y passe presque toutes mes nuits à résoudre des énigmes"</p>
-            <footer class="blockquote-footer">Jean-Pierre T.</footer>
-          </blockquote>
+      </div>
+      <!-- Article 3 -->
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <img src="/img/brown-background.jpg" class="card-img-top" alt="Article 3">
+          <div class="card-body">
+            <h5 class="card-title">Les bienfaits des énigmes pour le cerveau</h5>
+            <p class="card-text">Découvrez pourquoi résoudre des énigmes est bon pour la santé mentale.</p>
+            <a href="article3" class="btn btn-outline-dark">Lire plus</a>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Pied de page -->
-  <footer class="footer py-4">
-    <div class="container text-center">
-      <p>&copy; 2024 Énigmatique. Tous droits réservés.</p>
-      <a href="#" class="text-decoration-none text-white">Mentions légales</a> | 
-      <a href="#" class="text-decoration-none text-white">Contact</a> | 
-      <a href="admin" class="text-decoration-none text-white">Admin</a>
+<!-- Section avis des utilisateurs -->
+<section class="testimonials-section py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Ce que disent nos utilisateurs</h2>
+    <div class="row">
+      <div class="col-md-6 mb-4">
+        <blockquote class="blockquote">
+          <p class="mb-0">"Énigmatique est le meilleur site pour les amateurs de puzzles et d'énigmes. J'adore !"</p>
+          <footer class="blockquote-footer">Marie L.</footer>
+        </blockquote>
+      </div>
+      <div class="col-md-6 mb-4">
+        <blockquote class="blockquote">
+          <p class="mb-0">"Les défis proposés sont vraiment stimulants, je recommande vivement ! J'y passe presque toutes mes nuits à résoudre des énigmes"</p>
+          <footer class="blockquote-footer">Jean-Pierre T.</footer>
+        </blockquote>
+      </div>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Pied de page -->
+<footer class="footer py-4">
+  <div class="container text-center">
+    <p>&copy; 2024 Énigmatique. Tous droits réservés.</p>
+    <a href="mentionslegales" class="text-decoration-none text-white">Mentions légales</a> | 
+    <a href="contact" class="text-decoration-none text-white">Contact</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

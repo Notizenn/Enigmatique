@@ -20,9 +20,7 @@
             <li class="nav-item">
                 <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab">Catégories</button>
             </li>
-            <li class="nav-item">
-                <button class="nav-link" id="statistiques-tab" data-bs-toggle="tab" data-bs-target="#statistiques" type="button" role="tab">Statistiques</button>
-            </li>
+           
             <li class="nav-item">
                 <button class="nav-link" id="indices-tab" data-bs-toggle="tab" data-bs-target="#indices" type="button" role="tab">Indices</button>
             </li>
@@ -101,8 +99,8 @@
                             <th>Titre</th>
                             <th>Description</th>
                             <th>Niveau</th>
-                            <th>Catégorie</th>
-                            <th>Actions</th>
+                         
+                           
                         </tr>
                     </thead>
                     <tbody id="enigmesTable">
@@ -110,7 +108,7 @@
                             <td th:text="${enigme.titre}"></td>
                             <td th:text="${enigme.description}"></td>
                             <td th:text="${enigme.niveau}"></td>
-                            <td th:text="${enigme.categorie != null ? enigme.categorie.nom : 'Sans Catégorie'}"></td>
+                           
                             <td>
                                 <button class="btn btn-warning btn-sm btn-edit"
                                         th:attr="data-id=${enigme.id},
@@ -142,7 +140,7 @@
                     <thead>
                         <tr>
                             <th>Nom</th>
-                            <th>Actions</th>
+                        
                         </tr>
                     </thead>
                     <tbody id="categoriesTable">
@@ -163,38 +161,7 @@
                 </table>
             </div>
 
-            <!-- Statistiques -->
-            <div class="tab-pane fade" id="statistiques" role="tabpanel">
-                <h2>Gestion des Statistiques</h2>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Utilisateur</th>
-                            <th>Score</th>
-                            <th>Temps</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="statistiquesTable">
-                        <tr th:each="statistique : ${statistiques}">
-                            <td th:text="${statistique.utilisateur.nom}"></td>
-                            <td th:text="${statistique.score}"></td>
-                            <td th:text="${statistique.temps}"></td>
-                            <td>
-                                <button class="btn btn-warning btn-sm btn-edit"
-                                        th:attr="data-id=${statistique.id},
-                                                 data-type='statistique',
-                                                 data-score=${statistique.score},
-                                                 data-temps=${statistique.temps}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-statistique"
-                                        th:attr="data-id=${statistique.id}">Supprimer</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+           
 
             <!-- Indices -->
             <div class="tab-pane fade" id="indices" role="tabpanel">

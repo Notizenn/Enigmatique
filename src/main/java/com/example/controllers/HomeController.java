@@ -19,6 +19,11 @@ public class HomeController {
         if (authentication != null && authentication.isAuthenticated() &&
             !"anonymousUser".equals(authentication.getPrincipal())) {
             model.addAttribute("username", authentication.getName());
+
+               // Vérifiez si l'utilisateur a le rôle "ADMIN"
+            boolean isAdmin = authentication.getAuthorities().stream()
+            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+            model.addAttribute("isAdmin", isAdmin);
         }
         return "home"; 
     }
