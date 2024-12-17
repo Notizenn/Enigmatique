@@ -2,16 +2,14 @@ package com.example.controllers;
 
 import com.example.entities.Categorie;
 import com.example.entities.Enigme;
-import com.example.repository.EnigmeRepository;
 import com.example.repository.CategorieRepository;
+import com.example.repository.EnigmeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/enigmes")
@@ -23,10 +21,20 @@ public class EnigmeController {
     @Autowired
     private CategorieRepository categorieRepository;
 
-    // Obtenir toutes les énigmes
+    // Obtenir toutes les énigmes, avec option de filtrer par ID de catégorie
     @GetMapping
-    public ResponseEntity<List<Enigme>> obtenirToutesLesEnigmes() {
-        List<Enigme> enigmes = enigmeRepository.findAll();
+    public ResponseEntity<List<Enigme>> obtenirToutesLesEnigmes(@RequestParam(required = false) Long categorieId) {
+        List<Enigme> enigmes;
+        if (categorieId != null) {
+            Optional<Categorie> categorieOpt = categorieRepository.findById(categorieId);
+            if (categorieOpt.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            enigmes = enigmeRepository.findByCategorie(categorieOpt.get());
+        } else {
+            enigmes = enigmeRepository.findAll();
+        }
+
         if (enigmes.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -41,77 +49,81 @@ public class EnigmeController {
                      .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    // Créer une nouvelle énigme
     @PostMapping
-    public ResponseEntity<?> creerEnigme(@RequestBody Enigme enigme) {
+    public ResponseEntity<Enigme> creerEnigme(@RequestBody Enigme enigme) {
         try {
-            // Vérifier le niveau non vide
-            if (enigme.getNiveau() == null || enigme.getNiveau().isEmpty()) {
-                return ResponseEntity.badRequest().body("Le champ niveau est obligatoire.");
-            }
-    
-            // Vérifier la catégorie si nécessaire
-            if (enigme.getCategorie() != null && enigme.getCategorie().getId() != null) {
-                Optional<Categorie> catOpt = categorieRepository.findById(enigme.getCategorie().getId());
-                if (catOpt.isEmpty()) {
-                    return ResponseEntity.badRequest().body("Catégorie non trouvée.");
+            // Validation de la catégorie
+            if (enigme.getCategorie() != null) {
+                Long categorieId = enigme.getCategorie().getId();
+                Optional<Categorie> categorieOptional = categorieRepository.findById(categorieId);
+                if (!categorieOptional.isPresent()) {
+                    return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
                 }
-                enigme.setCategorie(catOpt.get());
+                enigme.setCategorie(categorieOptional.get());
+            } else {
+                enigme.setCategorie(null); // Optionnel : gérer les énigmes sans catégorie
             }
-    
+
             Enigme nouvelleEnigme = enigmeRepository.save(enigme);
             return new ResponseEntity<>(nouvelleEnigme, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        }   
     }
-    
+
     // Ajouter plusieurs énigmes en une seule requête
     @PostMapping("/bulk")
     public ResponseEntity<List<Enigme>> ajouterEnigmes(@RequestBody List<Enigme> enigmes) {
         try {
             for (Enigme enigme : enigmes) {
-                if (enigme.getCategorie() != null && enigme.getCategorie().getId() != null) {
-                    Optional<Categorie> catOpt = categorieRepository.findById(enigme.getCategorie().getId());
-                    if (catOpt.isEmpty()) {
-                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                if (enigme.getCategorie() != null) {
+                    Long categorieId = enigme.getCategorie().getId();
+                    Optional<Categorie> categorieOptional = categorieRepository.findById(categorieId);
+                    if (categorieOptional.isPresent()) {
+                        enigme.setCategorie(categorieOptional.get());
+                    } else {
+                        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
                     }
-                    enigme.setCategorie(catOpt.get());
+                } else {
+                    enigme.setCategorie(null); // Optionnel : gérer les énigmes sans catégorie
                 }
             }
 
             List<Enigme> nouvellesEnigmes = enigmeRepository.saveAll(enigmes);
             return new ResponseEntity<>(nouvellesEnigmes, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // Mettre à jour une énigme
     @PutMapping("/{id}")
     public ResponseEntity<Enigme> mettreAJourEnigme(@PathVariable Long id, @RequestBody Enigme detailsEnigme) {
         Optional<Enigme> enigmeExistante = enigmeRepository.findById(id);
-    
+
         if (enigmeExistante.isPresent()) {
             Enigme enigme = enigmeExistante.get();
             enigme.setTitre(detailsEnigme.getTitre());
             enigme.setDescription(detailsEnigme.getDescription());
             enigme.setReponse(detailsEnigme.getReponse());
             enigme.setNiveau(detailsEnigme.getNiveau());
-    
-            // Vérifier le niveau non vide si nécessaire
-            if (enigme.getNiveau() == null || enigme.getNiveau().isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-    
-            // Vérifier la catégorie
-            if (detailsEnigme.getCategorie() != null && detailsEnigme.getCategorie().getId() != null) {
-                Optional<Categorie> catOpt = categorieRepository.findById(detailsEnigme.getCategorie().getId());
-                if (catOpt.isEmpty()) {
+
+            // Gestion de la catégorie
+            if (detailsEnigme.getCategorie() != null) {
+                Long categorieId = detailsEnigme.getCategorie().getId();
+                Optional<Categorie> categorieOptional = categorieRepository.findById(categorieId);
+                if (categorieOptional.isPresent()) {
+                    enigme.setCategorie(categorieOptional.get());
+                } else {
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 }
-                enigme.setCategorie(catOpt.get());
+            } else {
+                enigme.setCategorie(null); // Optionnel : gérer les énigmes sans catégorie
             }
-    
+
             Enigme enigmeMisAJour = enigmeRepository.save(enigme);
             return ResponseEntity.ok(enigmeMisAJour);
         } else {

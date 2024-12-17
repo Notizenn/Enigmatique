@@ -2,12 +2,12 @@ package com.example.controllers;
 
 import com.example.entities.Categorie;
 import com.example.entities.Enigme;
-import com.example.entities.Indice;
 import com.example.entities.Utilisateur;
+import com.example.entities.Indice;
 import com.example.repository.CategorieRepository;
 import com.example.repository.EnigmeRepository;
-import com.example.repository.IndiceRepository;
 import com.example.repository.UtilisateurRepository;
+import com.example.repository.IndiceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +27,7 @@ public class AdminController {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
+
     @Autowired
     private IndiceRepository indiceRepository;
 
@@ -36,16 +37,17 @@ public class AdminController {
     @Autowired
     private CategorieRepository categorieRepository;
 
-    // Page d'administration générale
+    // *** Page d'administration générale ***
     @GetMapping
     public String adminPage(Model model) {
         model.addAttribute("utilisateurs", utilisateurRepository.findAll());
         model.addAttribute("indices", indiceRepository.findAll());
         model.addAttribute("enigmes", enigmeRepository.findAll());
         model.addAttribute("categories", categorieRepository.findAll());
-        return "admin";
+        return "admin"; // Assurez-vous que le fichier est nommé admin.html et est dans le bon dossier
     }
 
+    // *** Endpoint pour récupérer toutes les données en JSON ***
     @GetMapping("/data")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAllData() {
@@ -62,6 +64,7 @@ public class AdminController {
                 return utilisateurData;
             }).collect(Collectors.toList());
 
+            // Indices avec informations sur les énigmes
             List<Map<String, Object>> indices = indiceRepository.findAll().stream().map(indice -> {
                 Map<String, Object> indiceData = new HashMap<>();
                 indiceData.put("id", indice.getId());
@@ -71,9 +74,31 @@ public class AdminController {
                 return indiceData;
             }).collect(Collectors.toList());
 
+            // Enigmes avec informations sur les catégories
+            List<Map<String, Object>> enigmes = enigmeRepository.findAll().stream().map(enigme -> {
+                Map<String, Object> enigmeData = new HashMap<>();
+                enigmeData.put("id", enigme.getId());
+                enigmeData.put("titre", enigme.getTitre());
+                enigmeData.put("description", enigme.getDescription());
+                enigmeData.put("reponse", enigme.getReponse());
+                enigmeData.put("niveau", enigme.getNiveau());
+                enigmeData.put("categorieId", enigme.getCategorie() != null ? enigme.getCategorie().getId() : null);
+                enigmeData.put("categorieNom", enigme.getCategorie() != null ? enigme.getCategorie().getNom() : "Sans Catégorie");
+                return enigmeData;
+            }).collect(Collectors.toList());
+
+            // Catégories
+            List<Map<String, Object>> categories = categorieRepository.findAll().stream().map(categorie -> {
+                Map<String, Object> categorieData = new HashMap<>();
+                categorieData.put("id", categorie.getId());
+                categorieData.put("nom", categorie.getNom());
+                return categorieData;
+            }).collect(Collectors.toList());
+
+
             data.put("utilisateurs", utilisateurs);
-            data.put("enigmes", enigmeRepository.findAll());
-            data.put("categories", categorieRepository.findAll());
+            data.put("enigmes", enigmes);
+            data.put("categories", categories);
             data.put("indices", indices);
 
             return ResponseEntity.ok(data);
@@ -83,16 +108,19 @@ public class AdminController {
         }
     }
 
+    // *** Gestion des Utilisateurs ***
     @PostMapping("/utilisateurs/add")
     public ResponseEntity<?> addUtilisateur(@RequestBody Utilisateur utilisateur) {
         try {
+            // Vérification de l'unicité de l'email
             if (utilisateurRepository.findByEmail(utilisateur.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body("L'email existe déjà.");
+                return ResponseEntity.badRequest().body("L'email existe déjà. Veuillez en choisir un autre.");
             }
 
+            // Encode le mot de passe avant de sauvegarder
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
-
+            // Sauvegarder l'utilisateur
             utilisateurRepository.save(utilisateur);
             return ResponseEntity.ok(utilisateur);
         } catch (Exception e) {
@@ -136,12 +164,14 @@ public class AdminController {
         }
     }
 
+    // *** Gestion des Indices ***
     @PostMapping("/indices/add")
     public ResponseEntity<?> addIndice(@RequestBody Map<String, Object> requestData) {
         try {
             String description = (String) requestData.get("description");
+            // Suppression du champ 'cout'
             Long enigmeId = Long.parseLong(requestData.get("enigmeId").toString());
-
+    
             Optional<Enigme> enigmeOptional = enigmeRepository.findById(enigmeId);
             if (enigmeOptional.isPresent()) {
                 Enigme enigme = enigmeOptional.get();
@@ -157,7 +187,7 @@ public class AdminController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'ajout de l'indice.");
         }
-    }
+    }    
 
     @PutMapping("/indices/update/{id}")
     @ResponseBody
@@ -167,6 +197,18 @@ public class AdminController {
             if (indiceOptional.isPresent()) {
                 Indice indice = indiceOptional.get();
                 indice.setDescription(indiceDetails.getDescription());
+
+                // Optionnel : Mettre à jour l'énigme si nécessaire
+                if (indiceDetails.getEnigme() != null) {
+                    Long newEnigmeId = indiceDetails.getEnigme().getId();
+                    Optional<Enigme> newEnigmeOptional = enigmeRepository.findById(newEnigmeId);
+                    if (newEnigmeOptional.isPresent()) {
+                        indice.setEnigme(newEnigmeOptional.get());
+                    } else {
+                        return ResponseEntity.badRequest().build();
+                    }
+                }
+
                 indiceRepository.save(indice);
                 return ResponseEntity.ok(indice);
             }
@@ -192,27 +234,27 @@ public class AdminController {
         }
     }
 
+    // *** Gestion des Énigmes ***
     @PostMapping("/enigmes/add")
-    public ResponseEntity<?> addEnigme(@RequestBody Enigme enigme) {
+    public ResponseEntity<?> addEnigme(@RequestBody Map<String, Object> requestData) {
         try {
-            // Si la liste d'indices est nulle, on la remplace par une liste vide
-            if (enigme.getIndices() == null) {
-                enigme.setIndices(new ArrayList<>());
+            String titre = (String) requestData.get("titre");
+            String description = (String) requestData.get("description");
+            String reponse = (String) requestData.get("reponse");
+            String niveau = (String) requestData.get("niveau");
+            Long categorieId = Long.parseLong(requestData.get("categorieId").toString());
+
+            Optional<Categorie> categorieOptional = categorieRepository.findById(categorieId);
+            if (!categorieOptional.isPresent()) {
+                return ResponseEntity.badRequest().body("Catégorie non trouvée.");
             }
 
-            // Vérifier que le niveau n'est pas vide
-            if (enigme.getNiveau() == null || enigme.getNiveau().isEmpty()) {
-                return ResponseEntity.badRequest().body("Le champ niveau est obligatoire.");
-            }
-
-            // Vérifier et charger la catégorie si une catégorie est spécifiée
-            if (enigme.getCategorie() != null && enigme.getCategorie().getId() != null) {
-                Optional<Categorie> categorieOptional = categorieRepository.findById(enigme.getCategorie().getId());
-                if (categorieOptional.isEmpty()) {
-                    return ResponseEntity.badRequest().body("Catégorie non trouvée");
-                }
-                enigme.setCategorie(categorieOptional.get());
-            }
+            Enigme enigme = new Enigme();
+            enigme.setTitre(titre);
+            enigme.setDescription(description);
+            enigme.setReponse(reponse);
+            enigme.setNiveau(niveau);
+            enigme.setCategorie(categorieOptional.get());
 
             enigmeRepository.save(enigme);
             return ResponseEntity.ok(enigme);
@@ -224,34 +266,39 @@ public class AdminController {
 
     @PutMapping("/enigmes/update/{id}")
     @ResponseBody
-    public ResponseEntity<Enigme> updateEnigme(@PathVariable Long id, @RequestBody Enigme enigmeDetails) {
+    public ResponseEntity<?> updateEnigme(@PathVariable Long id, @RequestBody Map<String, Object> requestData) {
         try {
             Optional<Enigme> enigmeOptional = enigmeRepository.findById(id);
-            if (enigmeOptional.isPresent()) {
-                Enigme enigme = enigmeOptional.get();
-                enigme.setTitre(enigmeDetails.getTitre());
-                enigme.setDescription(enigmeDetails.getDescription());
-                enigme.setReponse(enigmeDetails.getReponse());
-                enigme.setNiveau(enigmeDetails.getNiveau());
-
-                // Vérifier le niveau
-                if (enigme.getNiveau() == null || enigme.getNiveau().isEmpty()) {
-                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                }
-
-                // Gérer la catégorie
-                if (enigmeDetails.getCategorie() != null && enigmeDetails.getCategorie().getId() != null) {
-                    Optional<Categorie> catOpt = categorieRepository.findById(enigmeDetails.getCategorie().getId());
-                    if (catOpt.isEmpty()) {
-                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                    }
-                    enigme.setCategorie(catOpt.get());
-                }
-
-                enigmeRepository.save(enigme);
-                return ResponseEntity.ok(enigme);
+            if (!enigmeOptional.isPresent()) {
+                return ResponseEntity.notFound().build();
             }
-            return ResponseEntity.notFound().build();
+
+            Enigme enigme = enigmeOptional.get();
+
+            // Mise à jour des champs
+            if (requestData.containsKey("titre")) {
+                enigme.setTitre((String) requestData.get("titre"));
+            }
+            if (requestData.containsKey("description")) {
+                enigme.setDescription((String) requestData.get("description"));
+            }
+            if (requestData.containsKey("reponse")) {
+                enigme.setReponse((String) requestData.get("reponse"));
+            }
+            if (requestData.containsKey("niveau")) {
+                enigme.setNiveau((String) requestData.get("niveau"));
+            }
+            if (requestData.containsKey("categorieId")) {
+                Long categorieId = Long.parseLong(requestData.get("categorieId").toString());
+                Optional<Categorie> categorieOptional = categorieRepository.findById(categorieId);
+                if (!categorieOptional.isPresent()) {
+                    return ResponseEntity.badRequest().body("Catégorie non trouvée.");
+                }
+                enigme.setCategorie(categorieOptional.get());
+            }
+
+            enigmeRepository.save(enigme);
+            return ResponseEntity.ok(enigme);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -273,6 +320,7 @@ public class AdminController {
         }
     }
 
+    // *** Gestion des Catégories ***
     @PostMapping("/categories/add")
     public ResponseEntity<?> addCategorie(@RequestBody Categorie categorie) {
         try {

@@ -1,9 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Admin.js chargé");
 
+    // Stocker les données de catégories et énigmes
     let categoriesData = [];
     let enigmesData = [];
 
+    // Fonction pour afficher des alertes (Succès, Erreur, etc.)
     function showAlert(message, type = 'success') {
         const alertContainer = document.querySelector('.container');
         if (!alertContainer) {
@@ -20,13 +21,12 @@ document.addEventListener("DOMContentLoaded", function () {
         alertContainer.prepend(alert);
     }
 
-    function setupDeleteButtons(className, endpoint) {
-        console.log(`Configuration des boutons de suppression pour ${className}`);
+    // Fonction générique pour gérer les suppressions
+    function setupDeleteButtons(className, endpoint, showSuccess = true, showError = true) {
         const deleteButtons = document.querySelectorAll(className);
         deleteButtons.forEach(button => {
             button.addEventListener("click", function () {
                 const entityId = this.getAttribute("data-id");
-                console.log(`Suppression : ID = ${entityId}, Endpoint = ${endpoint}`);
                 if (confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) {
                     fetch(`${endpoint}/${entityId}`, {
                         method: "DELETE",
@@ -34,28 +34,34 @@ document.addEventListener("DOMContentLoaded", function () {
                     })
                         .then(response => {
                             if (response.ok) {
-                                console.log(`Suppression réussie pour ID = ${entityId}`);
-                                showAlert("Suppression réussie.", 'success');
+                                // Suppression des alertes désactivée
+                                // if (showSuccess) {
+                                //     showAlert("Suppression réussie.", 'success');
+                                // }
                                 refreshData();
                             } else {
                                 return response.text().then(text => {
-                                    console.error(`Erreur lors de la suppression : ${response.statusText}`);
-                                    showAlert(`Erreur lors de la suppression : ${response.statusText}`, 'danger');
+                                    // Affichage des alertes d'erreur désactivé
+                                    // if (showError) {
+                                    //     showAlert(`Erreur lors de la suppression : ${response.statusText} - ${text}`, 'danger');
+                                    // }
                                 });
                             }
                         })
                         .catch(error => {
-                            console.error(`Erreur lors de la requête DELETE (${endpoint}) :`, error);
-                            showAlert(`Erreur lors de la requête DELETE : ${error}`, 'danger');
+                            // Affichage des alertes d'erreur désactivé
+                            // if (showError) {
+                            //     showAlert(`Erreur lors de la requête DELETE : ${error}`, 'danger');
+                            // }
                         });
                 }
             });
         });
     }
 
+    // Fonction pour gérer la soumission du formulaire de modification
     const editForm = document.getElementById("editForm");
     if (editForm) {
-        console.log("Formulaire de modification trouvé");
         editForm.addEventListener("submit", function (event) {
             event.preventDefault();
             const entityId = document.getElementById("editEntityId").value;
@@ -73,18 +79,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     endpoint = `/admin/utilisateurs/update/${entityId}`;
                     break;
                 case "enigme":
-                    {
-                        const categorieId = document.getElementById("editCategorieId").value;
-                        updatedData = {
-                            titre: document.getElementById("editTitre").value,
-                            description: document.getElementById("editDescription").value,
-                            reponse: document.getElementById("editReponse").value,
-                            niveau: document.getElementById("editNiveau").value,
-                            // On envoie un objet "categorie" avec son id
-                            categorie: { id: parseInt(categorieId) }
-                        };
-                        endpoint = `/admin/enigmes/update/${entityId}`;
-                    }
+                    updatedData = {
+                        titre: document.getElementById("editTitre").value,
+                        description: document.getElementById("editDescription").value,
+                        reponse: document.getElementById("editReponse").value,
+                        niveau: document.getElementById("editNiveau").value,
+                        categorieId: parseInt(document.getElementById("editCategorieId").value)
+                    };
+                    endpoint = `/admin/enigmes/update/${entityId}`;
                     break;
                 case "categorie":
                     updatedData = {
@@ -95,25 +97,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 case "indice":
                     updatedData = {
                         description: document.getElementById("editDescription").value,
-                       
                         enigmeId: parseInt(document.getElementById("editEnigmeId").value)
                     };
                     endpoint = `/admin/indices/update/${entityId}`;
                     break;
-                case "statistique":
-                    updatedData = {
-                        score: parseInt(document.getElementById("editScore").value),
-                        temps: parseInt(document.getElementById("editTemps").value)
-                    };
-                    endpoint = `/admin/statistiques/update/${entityId}`;
-                    break;
                 default:
-                    console.error(`Type d'entité inconnu : ${entityType}`);
-                    showAlert(`Type d'entité inconnu : ${entityType}`, 'danger');
+                    // showAlert(`Type d'entité inconnu : ${entityType}`, 'danger'); // Désactivé
                     return;
             }
-
-            console.log(`Soumission du formulaire de modification : ID = ${entityId}`, updatedData);
 
             fetch(endpoint, {
                 method: "PUT",
@@ -122,8 +113,8 @@ document.addEventListener("DOMContentLoaded", function () {
             })
                 .then(response => {
                     if (response.ok) {
-                        console.log(`Modification réussie pour ID = ${entityId}`);
-                        showAlert("Modification réussie.", 'success');
+                        // showAlert("Modification réussie.", 'success'); // Désactivé
+                        // Fermer la modale après modification réussie
                         const editModal = bootstrap.Modal.getInstance(document.getElementById("editModal"));
                         if (editModal) {
                             editModal.hide();
@@ -131,38 +122,35 @@ document.addEventListener("DOMContentLoaded", function () {
                         refreshData();
                     } else {
                         return response.text().then(text => {
-                            console.error(`Erreur lors de la modification : ${response.statusText}`);
-                            showAlert(`Erreur lors de la modification : ${response.statusText}`, 'danger');
+                            // showAlert(`Erreur lors de la modification : ${response.statusText} - ${text}`, 'danger'); // Désactivé
                         });
                     }
                 })
                 .catch(error => {
-                    console.error("Erreur lors de la requête PUT :", error);
-                    showAlert(`Erreur lors de la requête PUT : ${error}`, 'danger');
+                    // showAlert(`Erreur lors de la requête PUT : ${error}`, 'danger'); // Désactivé
                 });
         });
     } else {
-        console.warn("Formulaire de modification non trouvé");
+        // Formulaire de modification non trouvé
     }
 
-    setupDeleteButtons(".btn-delete", "/admin/utilisateurs/delete"); 
-    setupDeleteButtons(".btn-delete-enigme", "/admin/enigmes/delete");
-    setupDeleteButtons(".btn-delete-categorie", "/admin/categories/delete");
-    setupDeleteButtons(".btn-delete-indice", "/admin/indices/delete");
-    setupDeleteButtons(".btn-delete-statistique", "/admin/statistiques/delete");
+    // Configurer les suppressions
+    setupDeleteButtons(".btn-delete", "/admin/utilisateurs/delete", false, false); // Utilisateurs : Pas d'alertes
+    setupDeleteButtons(".btn-delete-enigme", "/admin/enigmes/delete"); // Énigmes : Alertes activées
+    setupDeleteButtons(".btn-delete-categorie", "/admin/categories/delete"); // Catégories : Alertes activées
+    setupDeleteButtons(".btn-delete-indice", "/admin/indices/delete"); // Indices : Alertes activées
 
+    // Fonction pour gérer les boutons "Modifier"
     function setupEditButtons() {
         const editButtons = document.querySelectorAll(".btn-edit");
-        console.log(`Nombre de boutons "Modifier" trouvés : ${editButtons.length}`);
         editButtons.forEach(button => {
             button.addEventListener("click", function () {
                 const entityId = this.getAttribute("data-id");
                 const entityType = this.getAttribute("data-type");
-                console.log(`Pré-remplissage du formulaire pour ID = ${entityId}, Type = ${entityType}`);
 
+                // Vider le conteneur des champs de la modale
                 const editFields = document.getElementById("editFields");
                 if (!editFields) {
-                    console.error("Conteneur des champs de la modale non trouvé");
                     return;
                 }
                 editFields.innerHTML = "";
@@ -170,7 +158,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const editEntityId = document.getElementById("editEntityId");
                 const editEntityType = document.getElementById("editEntityType");
                 if (!editEntityId || !editEntityType) {
-                    console.error("Champs cachés pour ID ou Type d'entité non trouvés");
                     return;
                 }
                 editEntityId.value = entityId;
@@ -218,6 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <label for="editCategorieId" class="form-label">Catégorie</label>
                                 <select class="form-control" id="editCategorieId" required>
                                     <option value="" disabled>Choisir une catégorie</option>
+                                    <!-- Les options seront ajoutées dynamiquement -->
                                 </select>
                             </div>`;
                         populateCategorieSelect(document.getElementById("editCategorieId"), this.getAttribute("data-categorieId"));
@@ -235,45 +223,33 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <label for="editDescription" class="form-label">Description</label>
                                 <textarea class="form-control" id="editDescription" required>${this.getAttribute("data-description")}</textarea>
                             </div>
-                         
                             <div class="mb-3">
                                 <label for="editEnigmeId" class="form-label">Énigme</label>
                                 <select class="form-control" id="editEnigmeId" required>
                                     <option value="" disabled>Choisir une énigme</option>
+                                    <!-- Les options seront ajoutées dynamiquement -->
                                 </select>
                             </div>`;
                         populateEnigmeSelect(document.getElementById("editEnigmeId"), this.getAttribute("data-enigmeId"));
                         break;
-                    case "statistique":
-                        editFields.innerHTML = `
-                            <div class="mb-3">
-                                <label for="editScore" class="form-label">Score</label>
-                                <input type="number" class="form-control" id="editScore" value="${this.getAttribute("data-score")}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editTemps" class="form-label">Temps</label>
-                                <input type="number" class="form-control" id="editTemps" value="${this.getAttribute("data-temps")}" required>
-                            </div>`;
-                        break;
                     default:
-                        console.error(`Type d'entité inconnu : ${entityType}`);
-                        showAlert(`Type d'entité inconnu : ${entityType}`, 'danger');
                         return;
                 }
 
+                // Afficher la modale
                 const editModal = new bootstrap.Modal(document.getElementById("editModal"));
                 editModal.show();
-                console.log("Modale affichée");
             });
         });
     }
 
+    // Fonction pour populater le select des catégories
     function populateCategorieSelect(selectElement, selectedId = null) {
         if (!categoriesData || categoriesData.length === 0) {
-            console.error("Données des catégories non disponibles");
             return;
         }
 
+        // Vider les options existantes sauf la première
         selectElement.innerHTML = `<option value="" disabled>Choisir une catégorie</option>`;
 
         categoriesData.forEach(categorie => {
@@ -287,12 +263,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Fonction pour populater le select des énigmes
     function populateEnigmeSelect(selectElement, selectedId = null) {
         if (!enigmesData || enigmesData.length === 0) {
-            console.error("Données des énigmes non disponibles");
             return;
         }
 
+        // Vider les options existantes sauf la première
         selectElement.innerHTML = `<option value="" disabled>Choisir une énigme</option>`;
 
         enigmesData.forEach(enigme => {
@@ -306,15 +283,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Fonction pour enlever le backdrop restant
     function removeModalBackdrop() {
         document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
+        document.body.style.overflow = ''; // Réinitialiser le défilement
         const modalBackdrop = document.querySelector('.modal-backdrop');
         if (modalBackdrop) {
             modalBackdrop.remove();
         }
     }
 
+    // Ajouter des écouteurs pour les boutons "Annuler" et la croix de fermeture de la modale
     const editModalElement = document.getElementById("editModal");
     if (editModalElement) {
         editModalElement.addEventListener('hidden.bs.modal', function () {
@@ -322,6 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Fonction pour rafraîchir les données affichées sans recharger la page
     function refreshData() {
         fetch('/admin/data')
             .then(response => {
@@ -331,10 +311,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(data => {
-                console.log("Données reçues du serveur :", JSON.stringify(data).length, "caractères");
+                // Stocker les catégories et énigmes pour utilisation ultérieure
                 categoriesData = data.categories || [];
                 enigmesData = data.enigmes || [];
                 updateTables(data);
+                // Populer les sélecteurs dans les formulaires d'ajout
                 const enigmeFormCategorieSelect = document.getElementById("enigmeFormCategorieId");
                 if (enigmeFormCategorieSelect) {
                     populateCategorieSelect(enigmeFormCategorieSelect);
@@ -345,12 +326,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             })
             .catch(error => {
-                console.error('Erreur lors du rafraîchissement des données:', error);
-                showAlert(`Erreur lors du rafraîchissement des données: ${error}`, 'danger');
+                // showAlert(`Erreur lors du rafraîchissement des données: ${error}`, 'danger'); // Désactivé
             });
     }
 
+    // Fonction pour mettre à jour les tableaux avec les nouvelles données
     function updateTables(data) {
+        // Créer une "map" des énigmes pour un accès facile par ID
         const enigmesMap = {};
         if (enigmesData) {
             enigmesData.forEach(enigme => {
@@ -358,6 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        // Mise à jour pour la table des utilisateurs
         const utilisateursTable = document.getElementById("utilisateursTable");
         if (utilisateursTable) {
             utilisateursTable.innerHTML = "";
@@ -385,6 +368,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
+        // Mise à jour pour la table des énigmes
         const enigmesTable = document.getElementById("enigmesTable");
         if (enigmesTable) {
             enigmesTable.innerHTML = "";
@@ -395,26 +379,28 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${enigme.titre}</td>
                             <td>${enigme.description}</td>
                             <td>${enigme.niveau}</td>
-                            <td>${enigme.categorieNom || ''}</td>
+                            <td>${enigme.categorieNom}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm btn-edit"
-                                        data-id="${enigme.id}"
-                                        data-type="enigme"
-                                        data-titre="${enigme.titre}"
-                                        data-description="${enigme.description}"
-                                        data-reponse="${enigme.reponse}"
-                                        data-niveau="${enigme.niveau}"
-                                        data-categorieId="${enigme.categorie ? enigme.categorie.id : ''}" 
-                                        data-categorieName="${enigme.categorie ? enigme.categorie.nom : ''}" 
-                                        data-bs-toggle="modal"
+                                <button class="btn btn-warning btn-sm btn-edit" 
+                                        data-id="${enigme.id}" 
+                                        data-type="enigme" 
+                                        data-titre="${enigme.titre}" 
+                                        data-description="${enigme.description}" 
+                                        data-reponse="${enigme.reponse}" 
+                                        data-niveau="${enigme.niveau}" 
+                                        data-categorieId="${enigme.categorieId}" 
+                                        data-categorieName="${enigme.categorieNom}" 
+                                        data-bs-toggle="modal" 
                                         data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-enigme" data-id="${enigme.id}">Supprimer</button>
+                                <button class="btn btn-danger btn-sm btn-delete-enigme" 
+                                        data-id="${enigme.id}">Supprimer</button>
                             </td>
                         </tr>`;
                 });
             }
         }
 
+        // Mise à jour pour la table des catégories
         const categoriesTable = document.getElementById("categoriesTable");
         if (categoriesTable) {
             categoriesTable.innerHTML = "";
@@ -425,18 +411,20 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${categorie.nom}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm btn-edit" 
-                                        data-id="${categorie.id}"
-                                        data-type="categorie"
-                                        data-nom="${categorie.nom}"
-                                        data-bs-toggle="modal"
+                                        data-id="${categorie.id}" 
+                                        data-type="categorie" 
+                                        data-nom="${categorie.nom}" 
+                                        data-bs-toggle="modal" 
                                         data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-categorie" data-id="${categorie.id}">Supprimer</button>
+                                <button class="btn btn-danger btn-sm btn-delete-categorie" 
+                                        data-id="${categorie.id}">Supprimer</button>
                             </td>
                         </tr>`;
                 });
             }
         }
 
+        // Mise à jour pour la table des indices
         const indicesTable = document.getElementById("indicesTable");
         if (indicesTable) {
             indicesTable.innerHTML = "";
@@ -447,34 +435,34 @@ document.addEventListener("DOMContentLoaded", function () {
                     indicesTable.innerHTML += `
                         <tr>
                             <td>${indice.description}</td>
-                          
                             <td>${enigmeTitre}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm btn-edit"
+                                <button class="btn btn-warning btn-sm btn-edit" 
                                         data-id="${indice.id}" 
-                                        data-type="indice"
-                                        data-description="${indice.description}"
-                                        
-                                        data-enigmeId="${indice.enigmeId}"
-                                        data-enigmeTitre="${enigmeTitre}"
-                                        data-bs-toggle="modal"
+                                        data-type="indice" 
+                                        data-description="${indice.description}" 
+                                        data-enigmeId="${indice.enigmeId}" 
+                                        data-enigmeTitre="${enigmeTitre}" 
+                                        data-bs-toggle="modal" 
                                         data-bs-target="#editModal">Modifier</button>
-                                <button class="btn btn-danger btn-sm btn-delete-indice" data-id="${indice.id}">Supprimer</button>
+                                <button class="btn btn-danger btn-sm btn-delete-indice" 
+                                        data-id="${indice.id}">Supprimer</button>
                             </td>
                         </tr>`;
                 });
             }
         }
 
+        // Reconfigurer les boutons de modification et de suppression
         setupEditButtons();
-        setupDeleteButtons(".btn-delete", "/admin/utilisateurs/delete");
-        setupDeleteButtons(".btn-delete-enigme", "/admin/enigmes/delete");
-        setupDeleteButtons(".btn-delete-categorie", "/admin/categories/delete");
-        setupDeleteButtons(".btn-delete-indice", "/admin/indices/delete");
-        setupDeleteButtons(".btn-delete-statistique", "/admin/statistiques/delete");
+        setupDeleteButtons(".btn-delete", "/admin/utilisateurs/delete", false, false); // Utilisateurs : Pas d'alertes
+        setupDeleteButtons(".btn-delete-enigme", "/admin/enigmes/delete"); // Énigmes : Alertes activées
+        setupDeleteButtons(".btn-delete-categorie", "/admin/categories/delete"); // Catégories : Alertes activées
+        setupDeleteButtons(".btn-delete-indice", "/admin/indices/delete"); // Indices : Alertes activées
     }
 
-    function ajouterEntite(formId, endpoint, data) {
+    // Fonction d'ajout générique
+    function ajouterEntite(formId, endpoint, data, showSuccess = true, showError = true) {
         fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -482,22 +470,25 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => {
                 if (response.ok) {
-                    console.log("Entité ajoutée avec succès");
-                    setTimeout(refreshData, 500);
+                    // showAlert("Entité ajoutée avec succès.", "success"); // Désactivé
+                    setTimeout(refreshData, 500); // Ajouter un délai pour s'assurer que les données sont mises à jour
                     document.getElementById(formId).reset();
                 } else {
                     return response.text().then(text => {
-                        console.error("Erreur lors de l'ajout de l'entité :", response.status, text);
-                        showAlert(`Erreur lors de l'ajout de l'entité : ${text}`, "danger");
+                        // if (showError) {
+                        //     showAlert(`Erreur lors de l'ajout de l'entité : ${text}`, "danger");
+                        // }
                     });
                 }
             })
             .catch(error => {
-                console.error("Erreur lors de la requête POST :", error);
-                showAlert(`Erreur lors de la requête POST : ${error}`, "danger");
+                // if (showError) {
+                //     showAlert(`Erreur lors de la requête POST : ${error}`, "danger");
+                // }
             });
     }
 
+    // Ajouter un écouteur pour le bouton d'ajout d'utilisateur
     const utilisateurFormButton = document.querySelector("#utilisateurForm button[type=button]");
     if (utilisateurFormButton) {
         utilisateurFormButton.addEventListener("click", function () {
@@ -509,12 +500,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 motDePasse: formData.get("motDePasse"),
                 admin: formData.get("admin") === "on"
             };
-            ajouterEntite("utilisateurForm", "/admin/utilisateurs/add", data);
+            ajouterEntite("utilisateurForm", "/admin/utilisateurs/add", data, false, false); // Pas d'alertes
         });
     } else {
-        console.warn("Bouton d'ajout d'utilisateur non trouvé");
+        // Bouton d'ajout d'utilisateur non trouvé
     }
 
+    // Ajouter un écouteur pour le bouton d'ajout d'énigme
     const enigmeFormButton = document.querySelector("#enigmeForm button[type=button]");
     if (enigmeFormButton) {
         enigmeFormButton.addEventListener("click", function () {
@@ -522,8 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(enigmeForm);
             const categorieId = formData.get("categorieId");
             if (!categorieId || categorieId === "") {
-                console.error("La catégorie est requise pour ajouter une énigme.");
-                showAlert("La catégorie est requise pour ajouter une énigme.", "warning");
+                // showAlert("La catégorie est requise pour ajouter une énigme.", "warning"); // Désactivé
                 return;
             }
             const data = {
@@ -531,14 +522,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 description: formData.get("description"),
                 reponse: formData.get("reponse"),
                 niveau: formData.get("niveau"),
-                categorie: { id: parseInt(categorieId) } // On envoie un objet categorie
+                categorieId: parseInt(categorieId) // Inclusion de categorieId
             };
             ajouterEntite("enigmeForm", "/admin/enigmes/add", data);
         });
     } else {
-        console.warn("Bouton d'ajout d'énigme non trouvé");
+        // Bouton d'ajout d'énigme non trouvé
     }
 
+    // Ajouter un écouteur pour le bouton d'ajout de catégorie
     const categorieFormButton = document.querySelector("#categorieForm button[type=button]");
     if (categorieFormButton) {
         categorieFormButton.addEventListener("click", function () {
@@ -550,9 +542,10 @@ document.addEventListener("DOMContentLoaded", function () {
             ajouterEntite("categorieForm", "/admin/categories/add", data);
         });
     } else {
-        console.warn("Bouton d'ajout de catégorie non trouvé");
+        // Bouton d'ajout de catégorie non trouvé
     }
 
+   // Ajouter un écouteur pour le bouton d'ajout d'indice
     const indiceFormButton = document.querySelector("#indiceForm button[type=button]");
     if (indiceFormButton) {
         indiceFormButton.addEventListener("click", function () {
@@ -560,36 +553,20 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(indiceForm);
             const enigmeId = formData.get("enigmeId");
             if (!enigmeId || enigmeId === "") {
-                console.error("L'ID de l'énigme est requis pour ajouter un indice.");
-                showAlert("L'ID de l'énigme est requis pour ajouter un indice.", "warning");
+                // showAlert("L'ID de l'énigme est requis pour ajouter un indice.", "warning"); // Désactivé
                 return;
             }
             const data = {
                 description: formData.get("description"),
-              
                 enigmeId: parseInt(enigmeId)
             };
             ajouterEntite("indiceForm", "/admin/indices/add", data);
         });
     } else {
-        console.warn("Bouton d'ajout d'indice non trouvé");
+        // Bouton d'ajout d'indice non trouvé
     }
 
-    function removeModalBackdrop() {
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        const modalBackdrop = document.querySelector('.modal-backdrop');
-        if (modalBackdrop) {
-            modalBackdrop.remove();
-        }
-    }
 
-    const editModalElementFinal = document.getElementById("editModal");
-    if (editModalElementFinal) {
-        editModalElementFinal.addEventListener('hidden.bs.modal', function () {
-            removeModalBackdrop();
-        });
-    }
-
-    refreshData(); // Charger les données au démarrage
+    // Initialiser les données
+    refreshData();
 });
