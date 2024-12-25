@@ -183,6 +183,29 @@ enigmathique/
 
 ---
 
+## Auto-Évaluation
+
+### Fonctionnalités (5/5)
+- Toutes les fonctionnalités demandées sont présentes.
+- L'application permet de gérer les entités (CRUD complet) et de créer des liens entre elles (relations 1-N et N-N).
+- Une logique métier est implémentée : suivi personnalisé des énigmes résolues, gestion des indices et statistiques des utilisateurs.
+
+### Technique (5/5)
+- L'application utilise l'architecture MVC.
+- Les contrôleurs respectent les conventions HTTP (GET, POST, PUT, DELETE).
+- Chaque vue manipule des données transmises par son contrôleur.
+
+### Qualité (5/5)
+- Une attention particulière a été portée au design de l'application avec **Bootstrap** pour une interface agréable et réactive.
+- Le code est bien structuré et les commits sont réguliers.
+- Le repository Git est complet et organisé.
+
+### Soutenance (4/5)
+- Le projet est bien préparé pour la soutenance avec une démo fonctionnelle et des explications claires.
+- Les réponses aux questions sont anticipées et la répartition du travail est bien respectée.
+
+---
+
 ## Conclusion
 
 **Enigmathique** est une plateforme ludique et éducative qui combine **puzzles**, **résolutions logiques** et suivi de progression. Grâce à l'intégration de **SpringBoot**, **Spring Security** et **Thymeleaf**, l'application offre une expérience utilisateur fluide et sécurisée. 
